@@ -1,10 +1,10 @@
 {
-  "title": "White Noise",
-  "description": "",
+  "title": "Race Cars",
+  "description": "Generative text characters race",
   "tags": [
     "games",
     "generative"
   ],
   "accent": "#FFFFFF",
-  "svg": "orbit"
+  "svg": "car"
 }
