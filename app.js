@@ -1,3 +1,6 @@
+const isMobile =
+window.innerWidth <= 768;
+
 const grid =
 document.getElementById(
   "projects-grid"
@@ -26,6 +29,8 @@ async function loadProjects(){
 }
 
 function createCard(project, folder){
+  const unavailable =
+    isMobile && project.mobile === false;
 
   const card =
   document.createElement("article");
@@ -64,12 +69,28 @@ function createCard(project, folder){
 
       </div>
 
-      <a
-        class="open-btn"
-        href="./projects/${folder}/index.html"
-      >
-        Open →
-      </a>
+      ${
+        unavailable
+      
+        ?
+      
+        `
+          <div class="disabled-btn">
+            Desktop Only
+          </div>
+        `
+      
+        :
+      
+        `
+          <a
+            class="open-btn"
+            href="./projects/${folder}/index.html"
+          >
+            Open →
+          </a>
+        `
+      }
 
     </div>
   `;
