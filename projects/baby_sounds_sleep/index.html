@@ -1,368 +1,1230 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Zen Sleep</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    body { font-family: system-ui, -apple-system, sans-serif; touch-action: none; }
-    canvas#canvas { position: fixed; top: 0; left: 0; z-index: -1; opacity: 0.65; pointer-events: none; }
-    .glass { background: rgba(255,255,255,0.07); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.12); }
-    /* Hide scrollbar for horizontal preset scroll */
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-  </style>
-</head>
-<body class="bg-[#0f172a] text-white h-[100dvh] overflow-hidden flex flex-col relative transition-colors duration-700">
-  <canvas id="canvas"></canvas>
+<meta charset="UTF-8" />
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+/>
 
-  <header class="flex justify-between items-center px-6 py-5 shrink-0 z-10">
-    <h1 class="text-3xl font-light tracking-widest">sleep.</h1>
-    <div class="flex gap-3">
-      <button onclick="toggleTheme()" id="theme-btn" class="w-10 h-10 rounded-full glass flex items-center justify-center text-lg">🌙</button>
-      <button onclick="toggleSettings()" class="w-10 h-10 rounded-full glass flex items-center justify-center text-lg">⚙️</button>
+<title>sleep.</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+  :root{
+    --bg:#000000;
+    --surface:rgba(255,255,255,.035);
+    --surface-strong:rgba(255,255,255,.06);
+    --border:rgba(255,255,255,.08);
+    --text:rgba(255,255,255,.92);
+    --muted:rgba(255,255,255,.42);
+    --accent:#7dd3fc;
+    --accent2:#818cf8;
+  }
+
+  *{
+    -webkit-tap-highlight-color: transparent;
+    box-sizing:border-box;
+  }
+
+  html,
+  body{
+    margin:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#000;
+    font-family:
+      Inter,
+      system-ui,
+      -apple-system,
+      sans-serif;
+    color:var(--text);
+  }
+
+  body{
+    position:relative;
+    background:
+      radial-gradient(circle at top,
+      rgba(59,130,246,.12),
+      transparent 35%),
+
+      radial-gradient(circle at bottom,
+      rgba(99,102,241,.08),
+      transparent 40%),
+
+      #000;
+  }
+
+  canvas#bg{
+    position:fixed;
+    inset:0;
+    z-index:0;
+    opacity:.85;
+    pointer-events:none;
+  }
+
+  .app{
+    position:relative;
+    z-index:2;
+    height:100dvh;
+    display:grid;
+    grid-template-rows:auto 1fr auto;
+    overflow:hidden;
+  }
+
+  .glass{
+    background:var(--surface);
+    border:1px solid var(--border);
+    backdrop-filter:blur(24px);
+  }
+
+  header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:18px 20px;
+  }
+
+  .logo{
+    font-size:1.4rem;
+    letter-spacing:.25em;
+    font-weight:300;
+    opacity:.95;
+  }
+
+  .top-actions{
+    display:flex;
+    gap:10px;
+  }
+
+  .icon-btn{
+    width:42px;
+    height:42px;
+    border-radius:999px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    transition:.25s;
+  }
+
+  .icon-btn:hover{
+    transform:scale(1.05);
+    background:rgba(255,255,255,.06);
+  }
+
+  main{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding-inline:20px;
+    min-height:0;
+  }
+
+  .hero{
+    position:relative;
+    width:min(72vw, 360px);
+    aspect-ratio:1/1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+  }
+
+  #visualizer{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+  }
+
+  .center-ui{
+    position:relative;
+    z-index:3;
+    text-align:center;
+    pointer-events:none;
+  }
+
+  .center-ui h2{
+    margin:0;
+    font-size:clamp(2rem,5vw,3rem);
+    font-weight:250;
+    letter-spacing:.03em;
+  }
+
+  .center-ui p{
+    margin-top:8px;
+    font-size:.72rem;
+    letter-spacing:.35em;
+    text-transform:uppercase;
+    color:var(--muted);
+  }
+
+  .dock{
+    padding:
+      0
+      16px
+      calc(env(safe-area-inset-bottom,0px) + 14px);
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+
+  .preset-row{
+    display:flex;
+    gap:10px;
+    overflow-x:auto;
+    scrollbar-width:none;
+    padding-bottom:2px;
+  }
+
+  .preset-row::-webkit-scrollbar{
+    display:none;
+  }
+
+  .preset{
+    border:none;
+    color:var(--text);
+    padding:12px 18px;
+    border-radius:999px;
+    white-space:nowrap;
+    cursor:pointer;
+    transition:.3s;
+    background:var(--surface);
+    border:1px solid transparent;
+    font-size:.82rem;
+  }
+
+  .preset.active{
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.14);
+  }
+
+  .controls{
+    display:grid;
+    grid-template-columns:
+      1fr auto;
+    gap:14px;
+    padding:16px;
+    border-radius:28px;
+  }
+
+  .volume-wrap{
+    display:flex;
+    align-items:center;
+    gap:14px;
+  }
+
+  .volume-wrap span{
+    font-size:.8rem;
+    color:var(--muted);
+  }
+
+  input[type="range"]{
+    width:100%;
+    appearance:none;
+    height:3px;
+    border-radius:999px;
+    background:rgba(255,255,255,.12);
+    outline:none;
+  }
+
+  input[type="range"]::-webkit-slider-thumb{
+    appearance:none;
+    width:16px;
+    height:16px;
+    border-radius:999px;
+    background:white;
+    cursor:pointer;
+  }
+
+  .timers{
+    display:flex;
+    gap:8px;
+  }
+
+  .timer-btn{
+    border:none;
+    color:var(--text);
+    background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.05);
+    padding:10px 14px;
+    border-radius:999px;
+    cursor:pointer;
+    font-size:.75rem;
+  }
+
+  .modal{
+    position:fixed;
+    inset:0;
+    z-index:100;
+    background:
+      radial-gradient(circle at top,
+      rgba(59,130,246,.08),
+      transparent 30%),
+      rgba(0,0,0,.96);
+
+    backdrop-filter:blur(30px);
+
+    transform:translateY(100%);
+    transition:.4s cubic-bezier(.22,.61,.36,1);
+
+    display:flex;
+    flex-direction:column;
+  }
+
+  .modal.open{
+    transform:translateY(0);
+  }
+
+  .modal-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:20px;
+  }
+
+  .modal-content{
+    flex:1;
+    overflow:auto;
+    padding:10px 20px 40px;
+  }
+
+  .setting{
+    margin-bottom:34px;
+  }
+
+  .setting label{
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:12px;
+    font-size:.9rem;
+  }
+
+  .setting span{
+    color:var(--muted);
+  }
+
+  .save-btn{
+    width:100%;
+    border:none;
+    border-radius:22px;
+    padding:18px;
+    color:white;
+    cursor:pointer;
+    margin-top:30px;
+    background:
+      linear-gradient(
+        135deg,
+        rgba(59,130,246,.22),
+        rgba(99,102,241,.18)
+      );
+
+    border:1px solid rgba(255,255,255,.08);
+  }
+
+  @media (max-height:740px){
+
+    header{
+      padding-top:12px;
+      padding-bottom:8px;
+    }
+
+    .hero{
+      width:min(60vw,250px);
+    }
+
+    .dock{
+      gap:10px;
+    }
+
+    .controls{
+      padding:12px;
+    }
+
+    .preset{
+      padding:10px 15px;
+    }
+  }
+</style>
+</head>
+
+<body>
+
+<canvas id="bg"></canvas>
+
+<div class="app">
+
+  <header>
+
+    <div class="logo">
+      sleep.
     </div>
+
+    <div class="top-actions">
+
+      <button
+        class="glass icon-btn"
+        onclick="toggleTheme()"
+        id="theme-btn"
+      >
+        ✦
+      </button>
+
+      <button
+        class="glass icon-btn"
+        onclick="toggleSettings()"
+      >
+        ⚙
+      </button>
+
+    </div>
+
   </header>
 
-  <main class="flex-1 flex flex-col justify-center items-center relative z-10 w-full px-4">
-    <div class="relative w-[240px] h-[240px] md:w-[280px] md:h-[280px] flex justify-center items-center cursor-pointer" onclick="togglePlayPause()">
-      <canvas id="visualizer" width="280" height="280" class="absolute inset-0 rounded-full"></canvas>
-      <div id="current-sound" class="absolute z-10 text-center leading-tight">
-        <span class="block text-2xl font-medium tracking-wide">Ready</span>
-        <span class="block text-xs text-white/50 mt-1 uppercase tracking-widest" id="status-text">Tap to Start</span>
+  <main>
+
+    <div class="hero" onclick="togglePlayPause()">
+
+      <canvas id="visualizer"></canvas>
+
+      <div class="center-ui">
+        <h2 id="sound-name">
+          Sleep
+        </h2>
+
+        <p id="status-text">
+          TAP TO START
+        </p>
       </div>
+
     </div>
+
   </main>
 
-  <footer class="shrink-0 w-full px-4 pb-8 z-10 flex flex-col gap-6">
-    
-    <div class="flex overflow-x-auto gap-3 no-scrollbar pb-2 snap-x">
-      <button onclick="loadPreset(0)" id="p0" class="glass snap-center shrink-0 px-6 py-4 rounded-3xl text-sm transition-all">🤍 Classic</button>
-      <button onclick="loadPreset(1)" id="p1" class="glass snap-center shrink-0 px-6 py-4 rounded-3xl text-sm transition-all">🌸 Pink</button>
-      <button onclick="loadPreset(2)" id="p2" class="glass snap-center shrink-0 px-6 py-4 rounded-3xl text-sm transition-all">🟫 Brown</button>
-      <button onclick="loadPreset(3)" id="p3" class="glass snap-center shrink-0 px-6 py-4 rounded-3xl text-sm transition-all">🍼 Womb</button>
-      <button onclick="loadPreset(4)" id="p4" class="glass snap-center shrink-0 px-6 py-4 rounded-3xl text-sm transition-all">🌧 Rain</button>
+  <section class="dock">
+
+    <div class="preset-row">
+
+      <button class="preset active" onclick="loadPreset(0)">
+        White
+      </button>
+
+      <button class="preset" onclick="loadPreset(1)">
+        Pink
+      </button>
+
+      <button class="preset" onclick="loadPreset(2)">
+        Brown
+      </button>
+
+      <button class="preset" onclick="loadPreset(3)">
+        Deep
+      </button>
+
+      <button class="preset" onclick="loadPreset(4)">
+        Rain
+      </button>
+
     </div>
 
-    <div class="glass rounded-3xl p-5 flex flex-col gap-5">
-      <div class="flex items-center gap-4">
-        <span class="text-white/50 text-xs">🔈</span>
-        <input type="range" id="volume" min="5" max="55" value="25" oninput="updateVolume(this.value)" class="flex-1 accent-sky-400 h-1 bg-white/20 rounded-full appearance-none">
-        <span id="vol-val" class="text-xs w-8 text-right">25%</span>
-      </div>
-      
-      <div class="flex justify-between items-center border-t border-white/10 pt-4">
-        <span class="text-xs text-white/50 uppercase tracking-wider">Timer</span>
-        <div class="flex gap-2">
-          <button onclick="setTimer(15)" class="px-3 py-1 rounded-full bg-white/10 text-xs">15m</button>
-          <button onclick="setTimer(30)" class="px-3 py-1 rounded-full bg-white/10 text-xs">30m</button>
-          <button onclick="setTimer(0)" class="px-3 py-1 rounded-full bg-white/20 text-xs font-medium">∞</button>
-        </div>
-      </div>
-    </div>
-  </footer>
+    <div class="controls glass">
 
-  <div id="settings-modal" class="fixed inset-0 bg-[#0f172a]/95 backdrop-blur-xl z-50 transform translate-y-full transition-transform duration-300 flex flex-col">
-    <div class="flex justify-between items-center px-6 py-5">
-      <h2 class="text-xl font-light">Acoustic Tuning</h2>
-      <button onclick="toggleSettings()" class="w-10 h-10 rounded-full glass flex items-center justify-center">✕</button>
+      <div class="volume-wrap">
+
+        <span>
+          VOL
+        </span>
+
+        <input
+          type="range"
+          id="volume"
+          min="0"
+          max="100"
+          value="28"
+          oninput="updateVolume(this.value)"
+        />
+
+      </div>
+
+      <div class="timers">
+
+        <button class="timer-btn" onclick="setTimer(15)">
+          15m
+        </button>
+
+        <button class="timer-btn" onclick="setTimer(30)">
+          30m
+        </button>
+
+        <button class="timer-btn" onclick="setTimer(0)">
+          ∞
+        </button>
+
+      </div>
+
     </div>
-    
-    <div class="flex-1 overflow-y-auto px-6 pb-8 space-y-8">
-      <div>
-        <label class="flex justify-between mb-3 text-sm"><span>Low Frequency Cut</span><span id="low-val" class="text-sky-300">80 Hz</span></label>
-        <input type="range" id="lowcut" min="30" max="350" value="80" oninput="updateFilters()" class="w-full accent-sky-400">
-      </div>
-      <div>
-        <label class="flex justify-between mb-3 text-sm"><span>High Frequency Cut</span><span id="high-val" class="text-sky-300">8000 Hz</span></label>
-        <input type="range" id="highcut" min="2000" max="16000" value="8000" oninput="updateFilters()" class="w-full accent-sky-400">
-      </div>
-      <div>
-        <label class="flex justify-between mb-3 text-sm"><span>Sub-Bass Resonance</span><span id="bass-val" class="text-amber-300">50</span></label>
-        <input type="range" id="bass" min="0" max="100" value="50" oninput="updateFilters()" class="w-full accent-amber-400">
-      </div>
-      <div>
-        <label class="flex justify-between mb-3 text-sm"><span>Signal Turbulence</span><span id="turb-val" class="text-purple-300">40</span></label>
-        <input type="range" id="turbulence" min="0" max="100" value="40" oninput="updateFilters()" class="w-full accent-purple-400">
-      </div>
-      
-      <button onclick="saveCustomPreset()" class="w-full glass py-4 rounded-2xl text-sm mt-4 font-medium tracking-wide">Save Configuration to Memory</button>
-    </div>
+
+  </section>
+
+</div>
+
+<div class="modal" id="settings-modal">
+
+  <div class="modal-header">
+
+    <h3 style="font-weight:300;letter-spacing:.08em;">
+      Advanced Lab
+    </h3>
+
+    <button
+      class="glass icon-btn"
+      onclick="toggleSettings()"
+    >
+      ✕
+    </button>
+
   </div>
 
-  <script>
-    let audioContext, gainNode, filterLow, filterHigh, currentSource = null;
-    let currentType = 'white';
-    let isPlaying = false;
-    let timerId = null;
-    let currentTheme = 'dark';
-    let activePreset = null;
+  <div class="modal-content">
 
-    // --- Visual Systems ---
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    let particles = [];
+    <div class="setting">
+      <label>
+        Low Frequency
+        <span id="low-val">80Hz</span>
+      </label>
 
-    function resizeCanvas() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      <input
+        type="range"
+        id="lowcut"
+        min="30"
+        max="350"
+        value="80"
+        oninput="updateFilters()"
+      />
+    </div>
+
+    <div class="setting">
+      <label>
+        High Frequency
+        <span id="high-val">8000Hz</span>
+      </label>
+
+      <input
+        type="range"
+        id="highcut"
+        min="2000"
+        max="16000"
+        value="8000"
+        oninput="updateFilters()"
+      />
+    </div>
+
+    <div class="setting">
+      <label>
+        Bass
+        <span id="bass-val">50</span>
+      </label>
+
+      <input
+        type="range"
+        id="bass"
+        min="0"
+        max="100"
+        value="50"
+        oninput="updateFilters()"
+      />
+    </div>
+
+    <div class="setting">
+      <label>
+        Turbulence
+        <span id="turb-val">40</span>
+      </label>
+
+      <input
+        type="range"
+        id="turbulence"
+        min="0"
+        max="100"
+        value="40"
+        oninput="updateFilters()"
+      />
+    </div>
+
+    <button
+      class="save-btn"
+      onclick="saveCustomPreset()"
+    >
+      Save Configuration
+    </button>
+
+  </div>
+
+</div>
+
+<script>
+
+let audioContext;
+let gainNode;
+let filterLow;
+let filterHigh;
+let currentSource = null;
+
+let currentType = "white";
+let isPlaying = false;
+let timerId = null;
+
+const bg = document.getElementById("bg");
+const bgCtx = bg.getContext("2d");
+
+let particles = [];
+
+function resizeCanvas(){
+  bg.width = innerWidth;
+  bg.height = innerHeight;
+}
+
+class Particle{
+
+  constructor(){
+    this.reset();
+  }
+
+  reset(){
+
+    this.x = Math.random() * bg.width;
+    this.y = Math.random() * bg.height;
+
+    this.radius =
+      Math.random() * 2 + .4;
+
+    this.speed =
+      Math.random() * .12 + .03;
+
+    this.opacity =
+      Math.random() * .2 + .02;
+  }
+
+  update(){
+
+    this.y -= this.speed;
+
+    if(this.y < -20){
+      this.y = bg.height + 20;
+      this.x = Math.random() * bg.width;
+    }
+  }
+
+  draw(){
+
+    bgCtx.beginPath();
+
+    bgCtx.fillStyle =
+      `rgba(125,211,252,${this.opacity})`;
+
+    bgCtx.arc(
+      this.x,
+      this.y,
+      this.radius,
+      0,
+      Math.PI * 2
+    );
+
+    bgCtx.fill();
+  }
+}
+
+function initParticles(){
+
+  particles =
+    Array.from(
+      {length:50},
+      () => new Particle()
+    );
+}
+
+function animateBackground(){
+
+  bgCtx.clearRect(
+    0,
+    0,
+    bg.width,
+    bg.height
+  );
+
+  particles.forEach(p => {
+    p.update();
+    p.draw();
+  });
+
+  requestAnimationFrame(
+    animateBackground
+  );
+}
+
+const vCanvas =
+  document.getElementById(
+    "visualizer"
+  );
+
+const vCtx =
+  vCanvas.getContext("2d");
+
+function resizeVisualizer(){
+
+  const size =
+    vCanvas.offsetWidth;
+
+  vCanvas.width = size * 2;
+  vCanvas.height = size * 2;
+
+  vCtx.scale(2,2);
+}
+
+let wave = 0;
+
+function drawVisualizer(){
+
+  const w =
+    vCanvas.width / 2;
+
+  const h =
+    vCanvas.height / 2;
+
+  vCtx.clearRect(0,0,w,h);
+
+  const cx = w / 2;
+  const cy = h / 2;
+
+  wave += .008;
+
+  if(isPlaying){
+
+    for(let i=0;i<4;i++){
+
+      const radius =
+        72 +
+        i * 18 +
+        Math.sin(
+          wave * 2 + i
+        ) * 8;
+
+      const opacity =
+        .18 - i * .03;
+
+      vCtx.beginPath();
+
+      vCtx.arc(
+        cx,
+        cy,
+        radius,
+        0,
+        Math.PI * 2
+      );
+
+      vCtx.strokeStyle =
+        `rgba(125,211,252,${opacity})`;
+
+      vCtx.lineWidth =
+        1.5;
+
+      vCtx.shadowBlur = 20;
+
+      vCtx.shadowColor =
+        "rgba(125,211,252,.25)";
+
+      vCtx.stroke();
     }
 
-    class Particle {
-      constructor() { this.reset(); }
-      reset() {
-        this.x = Math.random() * canvas.width;
-        this.y = Math.random() * canvas.height;
-        this.size = Math.random() * 2.5 + 0.8;
-        this.speed = Math.random() * 0.4 + 0.2;
-        this.opacity = Math.random() * 0.4 + 0.1;
-      }
-      update() { this.y -= this.speed; if (this.y < 0) this.reset(); }
-      draw() {
-        ctx.fillStyle = currentTheme === 'dark' ? `rgba(165, 243, 252, ${this.opacity})` : `rgba(251, 191, 36, ${this.opacity*0.8})`;
-        ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill();
-      }
+  }else{
+
+    vCtx.beginPath();
+
+    vCtx.arc(
+      cx,
+      cy,
+      84,
+      0,
+      Math.PI * 2
+    );
+
+    vCtx.strokeStyle =
+      "rgba(255,255,255,.08)";
+
+    vCtx.lineWidth = 1;
+
+    vCtx.stroke();
+  }
+
+  requestAnimationFrame(
+    drawVisualizer
+  );
+}
+
+function initAudio(){
+
+  if(!audioContext){
+
+    audioContext =
+      new (
+        window.AudioContext ||
+        window.webkitAudioContext
+      )();
+
+    gainNode =
+      audioContext.createGain();
+
+    filterLow =
+      audioContext.createBiquadFilter();
+
+    filterHigh =
+      audioContext.createBiquadFilter();
+
+    filterLow.type =
+      "lowshelf";
+
+    filterHigh.type =
+      "highshelf";
+
+    filterLow.connect(filterHigh);
+
+    filterHigh.connect(gainNode);
+
+    gainNode.connect(
+      audioContext.destination
+    );
+  }
+
+  if(audioContext.state === "suspended"){
+    audioContext.resume();
+  }
+}
+
+function createNoiseBuffer(type){
+
+  const size =
+    audioContext.sampleRate * 4;
+
+  const buffer =
+    audioContext.createBuffer(
+      1,
+      size,
+      audioContext.sampleRate
+    );
+
+  const data =
+    buffer.getChannelData(0);
+
+  let last = 0;
+
+  const turb =
+    parseFloat(
+      document.getElementById(
+        "turbulence"
+      ).value
+    ) / 100;
+
+  for(let i=0;i<size;i++){
+
+    let val =
+      Math.random() * 2 - 1;
+
+    if(type !== "white"){
+
+      val =
+        (last + (
+          turb * .018 * val
+        )) / (
+          1 + turb * .018
+        );
+
+      last = val;
+
+      val *=
+        type === "brown"
+          ? 8
+          : 3.5;
     }
 
-    function initParticles() { particles = Array.from({length: 60}, () => new Particle()); }
+    data[i] = val;
+  }
 
-    function animateBackground() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      particles.forEach(p => { p.update(); p.draw(); });
-      ctx.strokeStyle = currentTheme === 'dark' ? 'rgba(165,243,252,0.08)' : 'rgba(245,158,11,0.1)';
-      for (let i = 0; i < 4; i++) {
-        ctx.beginPath();
-        for (let x = 0; x < canvas.width; x += 15) {
-          const y = canvas.height * 0.7 + Math.sin(x*0.002 + Date.now()*0.0005 + i) * 35;
-          ctx.lineTo(x, y + i*20);
-        }
-        ctx.stroke();
-      }
-      requestAnimationFrame(animateBackground);
+  return buffer;
+}
+
+function playNoise(type){
+
+  initAudio();
+
+  if(currentSource){
+    currentSource.stop();
+  }
+
+  currentType = type;
+
+  const source =
+    audioContext.createBufferSource();
+
+  source.buffer =
+    createNoiseBuffer(type);
+
+  source.loop = true;
+
+  source.connect(filterLow);
+
+  source.start();
+
+  currentSource = source;
+
+  isPlaying = true;
+
+  document.getElementById(
+    "status-text"
+  ).textContent =
+    "SYNTHESIZING";
+
+  updateFilters();
+}
+
+function togglePlayPause(){
+
+  if(isPlaying){
+
+    stopAll(false);
+
+    document.getElementById(
+      "status-text"
+    ).textContent =
+      "PAUSED";
+
+  }else{
+
+    playNoise(currentType);
+  }
+}
+
+function stopAll(reset=false){
+
+  if(currentSource){
+    currentSource.stop();
+  }
+
+  currentSource = null;
+
+  isPlaying = false;
+
+  if(reset){
+
+    document.getElementById(
+      "sound-name"
+    ).textContent = "Sleep";
+
+    document.getElementById(
+      "status-text"
+    ).textContent =
+      "TAP TO START";
+  }
+}
+
+function updateVolume(val){
+
+  if(gainNode){
+    gainNode.gain.value =
+      val / 100;
+  }
+}
+
+function updateFilters(){
+
+  if(!filterLow || !filterHigh){
+    return;
+  }
+
+  const low =
+    +document.getElementById(
+      "lowcut"
+    ).value;
+
+  const high =
+    +document.getElementById(
+      "highcut"
+    ).value;
+
+  const bass =
+    +document.getElementById(
+      "bass"
+    ).value;
+
+  const turb =
+    +document.getElementById(
+      "turbulence"
+    ).value;
+
+  filterLow.frequency.value =
+    low;
+
+  filterLow.gain.value =
+    bass / 6 - 4;
+
+  filterHigh.frequency.value =
+    high;
+
+  filterHigh.gain.value =
+    -10;
+
+  document.getElementById(
+    "low-val"
+  ).textContent =
+    low + "Hz";
+
+  document.getElementById(
+    "high-val"
+  ).textContent =
+    high + "Hz";
+
+  document.getElementById(
+    "bass-val"
+  ).textContent =
+    bass;
+
+  document.getElementById(
+    "turb-val"
+  ).textContent =
+    turb;
+}
+
+function setTimer(minutes){
+
+  if(timerId){
+    clearTimeout(timerId);
+  }
+
+  if(minutes === 0){
+
+    document.getElementById(
+      "status-text"
+    ).textContent =
+      "CONTINUOUS";
+
+    return;
+  }
+
+  document.getElementById(
+    "status-text"
+  ).textContent =
+    `${minutes} MIN TIMER`;
+
+  timerId =
+    setTimeout(() => {
+
+      let vol =
+        gainNode.gain.value;
+
+      const fade =
+        setInterval(() => {
+
+          vol -= .02;
+
+          if(vol <= 0){
+
+            clearInterval(fade);
+
+            stopAll();
+
+          }else{
+
+            gainNode.gain.value =
+              vol;
+          }
+
+        },150);
+
+    }, minutes * 60000);
+}
+
+function toggleSettings(){
+
+  document
+    .getElementById(
+      "settings-modal"
+    )
+    .classList
+    .toggle("open");
+}
+
+function saveCustomPreset(){
+
+  const settings = {
+
+    volume:
+      document.getElementById(
+        "volume"
+      ).value,
+
+    lowcut:
+      document.getElementById(
+        "lowcut"
+      ).value,
+
+    highcut:
+      document.getElementById(
+        "highcut"
+      ).value,
+
+    bass:
+      document.getElementById(
+        "bass"
+      ).value,
+
+    turbulence:
+      document.getElementById(
+        "turbulence"
+      ).value,
+
+    type: currentType
+  };
+
+  localStorage.setItem(
+    "sleepPreset",
+    JSON.stringify(settings)
+  );
+
+  toggleSettings();
+
+  document.getElementById(
+    "status-text"
+  ).textContent =
+    "CONFIG SAVED";
+}
+
+function toggleTheme(){
+
+  document.body.classList.toggle(
+    "warm-mode"
+  );
+}
+
+function loadPreset(n){
+
+  document
+    .querySelectorAll(".preset")
+    .forEach(el =>
+      el.classList.remove("active")
+    );
+
+  document
+    .querySelectorAll(".preset")[n]
+    .classList.add("active");
+
+  const presets = [
+
+    {
+      name:"White",
+      type:"white",
+      low:65,
+      high:12500,
+      bass:35,
+      turb:25
+    },
+
+    {
+      name:"Pink",
+      type:"pink",
+      low:95,
+      high:9200,
+      bass:55,
+      turb:45
+    },
+
+    {
+      name:"Brown",
+      type:"brown",
+      low:45,
+      high:5800,
+      bass:85,
+      turb:65
+    },
+
+    {
+      name:"Deep",
+      type:"brown",
+      low:55,
+      high:4500,
+      bass:90,
+      turb:50
+    },
+
+    {
+      name:"Rain",
+      type:"pink",
+      low:120,
+      high:7800,
+      bass:60,
+      turb:55
     }
+  ];
 
-    const vCanvas = document.getElementById('visualizer');
-    const vctx = vCanvas.getContext('2d');
-    let angle = 0;
+  const p = presets[n];
 
-    function drawVisualizer() {
-      const width = vCanvas.width;
-      const height = vCanvas.height;
-      vctx.clearRect(0, 0, width, height);
-      const cx = width / 2, cy = height / 2;
+  document.getElementById(
+    "sound-name"
+  ).textContent =
+    p.name;
 
-      if (isPlaying) {
-        angle += 0.04;
-        const intensity = Math.sin(angle) * 12 + (width * 0.25);
-        for (let i = 0; i < 4; i++) {
-          vctx.beginPath();
-          vctx.arc(cx, cy, intensity + i*20, 0, Math.PI*2);
-          vctx.strokeStyle = currentTheme === 'dark' ? `rgba(165, 243, 252, ${0.4 - i*0.1})` : `rgba(251, 191, 36, ${0.4 - i*0.1})`;
-          vctx.lineWidth = 3 - i*0.5;
-          vctx.stroke();
-        }
-      } else {
-        vctx.beginPath();
-        vctx.arc(cx, cy, width * 0.3, 0, Math.PI*2);
-        vctx.strokeStyle = currentTheme === 'dark' ? 'rgba(165,243,252,0.15)' : 'rgba(251,191,36,0.15)';
-        vctx.lineWidth = 2;
-        vctx.stroke();
-      }
-      requestAnimationFrame(drawVisualizer);
-    }
+  document.getElementById(
+    "lowcut"
+  ).value =
+    p.low;
 
-    // --- Audio Subsystem ---
-    function initAudio() {
-      if (!audioContext) {
-        audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        gainNode = audioContext.createGain();
-        filterLow = audioContext.createBiquadFilter();
-        filterHigh = audioContext.createBiquadFilter();
-        filterLow.type = 'lowshelf';
-        filterHigh.type = 'highshelf';
-        filterLow.connect(filterHigh);
-        filterHigh.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-      }
-      if(audioContext.state === 'suspended') audioContext.resume();
-    }
+  document.getElementById(
+    "highcut"
+  ).value =
+    p.high;
 
-    function createNoiseBuffer(type) {
-      const size = audioContext.sampleRate * 4;
-      const buffer = audioContext.createBuffer(1, size, audioContext.sampleRate);
-      const data = buffer.getChannelData(0);
-      let last = 0;
-      const turb = parseFloat(document.getElementById('turbulence').value) / 100;
-      for (let i = 0; i < size; i++) {
-        let val = Math.random() * 2 - 1;
-        if (type !== 'white') {
-          val = (last + (turb * 0.018 * val)) / (1 + turb * 0.018);
-          last = val;
-          val *= type === 'brown' ? 8 : 3.5;
-        }
-        data[i] = val;
-      }
-      return buffer;
-    }
+  document.getElementById(
+    "bass"
+  ).value =
+    p.bass;
 
-    function togglePlayPause() {
-        if(isPlaying) {
-            stopAll(false);
-            document.getElementById('status-text').textContent = "Tap to Resume";
-        } else {
-            if(activePreset === null) loadPreset(0);
-            else playNoise(currentType);
-        }
-    }
+  document.getElementById(
+    "turbulence"
+  ).value =
+    p.turb;
 
-    function playNoise(type) {
-      initAudio();
-      if(currentSource) currentSource.stop();
-      currentType = type;
-      const source = audioContext.createBufferSource();
-      source.buffer = createNoiseBuffer(type);
-      source.loop = true;
-      source.connect(filterLow);
-      source.start();
-      currentSource = source;
-      isPlaying = true;
-      document.getElementById('status-text').textContent = "Synthesizing";
-      updateFilters();
-    }
+  playNoise(p.type);
+}
 
-    function updateFilters() {
-      if (!filterLow || !filterHigh) return;
-      const low = +document.getElementById('lowcut').value;
-      const high = +document.getElementById('highcut').value;
-      const bass = +document.getElementById('bass').value;
-      const turb = +document.getElementById('turbulence').value;
-      filterLow.frequency.value = low;
-      filterLow.gain.value = bass / 6 - 4;
-      filterHigh.frequency.value = high;
-      filterHigh.gain.value = -10;
-      document.getElementById('low-val').textContent = low + " Hz";
-      document.getElementById('high-val').textContent = high + " Hz";
-      document.getElementById('bass-val').textContent = bass;
-      document.getElementById('turb-val').textContent = turb;
-    }
+window.onload = () => {
 
-    function updateVolume(val) {
-      if (gainNode) gainNode.gain.value = val / 100;
-      document.getElementById('vol-val').textContent = val + "%";
-    }
+  resizeCanvas();
 
-    function loadPreset(n) {
-      activePreset = n;
-      document.querySelectorAll('[id^="p"]').forEach(b => {
-          b.classList.remove('bg-white/20', 'border-white/40');
-          b.classList.add('bg-white/5');
-      });
-      const activeBtn = document.getElementById('p'+n);
-      activeBtn.classList.remove('bg-white/5');
-      activeBtn.classList.add('bg-white/20', 'border-white/40');
+  resizeVisualizer();
 
-      const presets = [
-        {name:"Classic", type:'white', low:65, high:12500, bass:35, turb:25},
-        {name:"Pink", type:'pink', low:95, high:9200, bass:55, turb:45},
-        {name:"Brown", type:'brown', low:45, high:5800, bass:85, turb:65},
-        {name:"Womb", type:'womb', low:75, high:4800, bass:70, turb:40},
-        {name:"Rain", type:'rain', low:120, high:7800, bass:60, turb:55}
-      ];
+  addEventListener(
+    "resize",
+    () => {
 
-      const p = presets[n];
-      document.getElementById('current-sound').innerHTML = `
-        <span class="block text-3xl font-light tracking-wide">${p.name}</span>
-        <span class="block text-xs text-white/50 mt-2 uppercase tracking-widest" id="status-text">Synthesizing</span>
-      `;
-      
-      document.getElementById('lowcut').value = p.low;
-      document.getElementById('highcut').value = p.high;
-      document.getElementById('bass').value = p.bass;
-      document.getElementById('turbulence').value = p.turb;
-
-      playNoise(p.type);
-    }
-
-    function saveCustomPreset() {
-      const settings = {
-        volume: document.getElementById('volume').value,
-        lowcut: document.getElementById('lowcut').value,
-        highcut: document.getElementById('highcut').value,
-        bass: document.getElementById('bass').value,
-        turbulence: document.getElementById('turbulence').value,
-        type: currentType
-      };
-      localStorage.setItem('babySleepCustom', JSON.stringify(settings));
-      toggleSettings();
-      // Brief visual feedback
-      const status = document.getElementById('status-text');
-      status.textContent = "Parameters Saved";
-      setTimeout(() => { if(isPlaying) status.textContent = "Synthesizing"; }, 2000);
-    }
-
-    function setTimer(minutes) {
-      if (timerId) clearTimeout(timerId);
-      const status = document.getElementById('status-text');
-      if (minutes === 0) {
-          status.textContent = "Continuous Loop";
-          return;
-      }
-      status.textContent = `Timer: ${minutes}m`;
-      timerId = setTimeout(() => {
-        if (currentSource) {
-          let vol = gainNode.gain.value;
-          const fade = setInterval(() => {
-            vol -= 0.02;
-            if (vol <= 0) { clearInterval(fade); stopAll(); } 
-            else { gainNode.gain.value = vol; }
-          }, 150);
-        }
-      }, minutes * 60000);
-    }
-
-    function stopAll(resetUI = true) {
-      if (currentSource) currentSource.stop();
-      currentSource = null;
-      isPlaying = false;
-      if (resetUI) {
-        activePreset = null;
-        document.querySelectorAll('[id^="p"]').forEach(b => {
-            b.classList.remove('bg-white/20', 'border-white/40');
-            b.classList.add('bg-white/5');
-        });
-        document.getElementById('current-sound').innerHTML = `
-            <span class="block text-2xl font-medium tracking-wide">Ready</span>
-            <span class="block text-xs text-white/50 mt-1 uppercase tracking-widest" id="status-text">Tap to Start</span>
-        `;
-      }
-    }
-
-    // --- UI Control Logic ---
-    function toggleSettings() {
-        const modal = document.getElementById('settings-modal');
-        modal.classList.toggle('translate-y-full');
-    }
-
-    function toggleTheme() {
-      currentTheme = currentTheme === 'dark' ? 'warm' : 'dark';
-      document.getElementById('theme-btn').textContent = currentTheme === 'dark' ? '🌙' : '☀️';
-      document.body.style.backgroundColor = currentTheme === 'dark' ? '#0f172a' : '#291206';
-      
-      // Update modal background to match theme
-      const modal = document.getElementById('settings-modal');
-      modal.className = `fixed inset-0 backdrop-blur-xl z-50 transform transition-transform duration-300 flex flex-col ${currentTheme === 'dark' ? 'bg-[#0f172a]/95' : 'bg-[#291206]/95'} ${modal.classList.contains('translate-y-full') ? 'translate-y-full' : ''}`;
-    }
-
-    window.onload = () => {
       resizeCanvas();
-      window.addEventListener('resize', resizeCanvas);
-      initParticles();
-      animateBackground();
-      drawVisualizer();
-      updateVolume(25);
-      updateFilters();
-    };
-  </script>
+
+      resizeVisualizer();
+    }
+  );
+
+  initParticles();
+
+  animateBackground();
+
+  drawVisualizer();
+
+  updateVolume(28);
+
+  updateFilters();
+};
+
+</script>
+
 </body>
 </html>
