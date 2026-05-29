@@ -6,22 +6,25 @@
 
 body{
 
+  position:relative;
+
   background:
+
     radial-gradient(
       circle at top left,
-      rgba(180,140,90,0.08),
-      transparent 32%
+      rgba(180,140,90,0.10),
+      transparent 30%
     ),
 
     radial-gradient(
       circle at bottom right,
-      rgba(120,120,180,0.06),
-      transparent 30%
+      rgba(110,110,180,0.08),
+      transparent 28%
     ),
 
     linear-gradient(
       180deg,
-      #050505,
+      #030303,
       #000000
     );
 
@@ -50,7 +53,7 @@ body::before{
   radial-gradient(
     circle at center,
     transparent,
-    rgba(0,0,0,0.28)
+    rgba(0,0,0,0.35)
   );
 
   mix-blend-mode:soft-light;
@@ -70,7 +73,8 @@ body::before{
 
 .hero{
 
-  margin-bottom:80px;
+  margin-bottom:60px;
+
   max-width:700px;
 }
 
@@ -87,20 +91,67 @@ body::before{
 
 .hero h1{
 
-  font-size:2.6rem;
+  font-size:3rem;
 
   font-weight:300;
 
   letter-spacing:0.18em;
 }
 
-.hero p{
+.hero-description{
 
   margin-top:18px;
 
   color:#8d8d8d;
 
   font-size:0.95rem;
+}
+
+#last-update{
+
+  margin-top:22px;
+
+  font-size:0.82rem;
+
+  letter-spacing:0.08em;
+
+  color:#666;
+}
+
+#last-update span{
+
+  color:#d6c4a3;
+}
+
+#random-btn{
+
+  margin-top:26px;
+
+  background:none;
+
+  border:
+  1px solid
+  rgba(255,255,255,0.08);
+
+  color:#999;
+
+  padding:
+  12px
+  18px;
+
+  border-radius:999px;
+
+  cursor:pointer;
+
+  transition:0.3s;
+}
+
+#random-btn:hover{
+
+  color:white;
+
+  border-color:
+  rgba(255,255,255,0.18);
 }
 
 .grid{
@@ -126,7 +177,7 @@ body::before{
 
   min-height:220px;
 
-  border-radius:28px;
+  border-radius:24px;
 
   padding:24px;
 
@@ -137,13 +188,13 @@ body::before{
   background:
   linear-gradient(
     180deg,
-    rgba(255,255,255,0.04),
+    rgba(255,255,255,0.03),
     rgba(255,255,255,0.01)
   );
 
-  transition:0.35s;
+  backdrop-filter:blur(14px);
 
-  backdrop-filter:blur(10px);
+  transition:0.35s;
 }
 
 .card:hover{
@@ -166,6 +217,8 @@ body::before{
   height:220px;
 
   opacity:0.12;
+
+  pointer-events:none;
 }
 
 .card-content{
@@ -175,9 +228,38 @@ body::before{
   z-index:2;
 }
 
+.status-badge{
+
+  position:absolute;
+
+  top:18px;
+  right:18px;
+
+  font-size:0.68rem;
+
+  letter-spacing:0.14em;
+
+  color:#d4c3a1;
+
+  border:
+  1px solid
+  rgba(212,195,161,0.18);
+
+  padding:
+  7px
+  10px;
+
+  border-radius:999px;
+
+  background:
+  rgba(255,255,255,0.03);
+
+  backdrop-filter:blur(10px);
+}
+
 .card h2{
 
-  font-size:1.6rem;
+  font-size:1.45rem;
 
   font-weight:400;
 
@@ -190,7 +272,9 @@ body::before{
 
   color:#a8a8a8;
 
-  margin-bottom:28px;
+  margin-bottom:24px;
+
+  max-width:240px;
 }
 
 .tags{
@@ -201,7 +285,7 @@ body::before{
 
   flex-wrap:wrap;
 
-  margin-bottom:34px;
+  margin-bottom:28px;
 }
 
 .tag{
@@ -273,21 +357,43 @@ body::before{
 
   background:
   rgba(255,255,255,0.03);
-
-  font-size:0.9rem;
 }
 
-.status-badge{
-  
-  position:absolute; 
-  top:18px;
-  right:18px;
-  font-size:0.68rem;
-  letter-spacing:0.14em;
-  color:#d4c3a1;
-  border: 1px solid rgba(212,195,161,0.18); 
-  padding: 7px 10px;
-  border-radius:999px;
-  background: rgba(255,255,255,0.03);
-  backdrop-filter:blur(10px);
+.footer{
+
+  margin-top:80px;
+}
+
+.footer a{
+
+  color:#666;
+
+  text-decoration:none;
+
+  font-size:0.85rem;
+
+  transition:0.3s;
+}
+
+.footer a:hover{
+
+  color:#d6c4a3;
+}
+
+@media(max-width:768px){
+
+  .hero h1{
+
+    font-size:2.2rem;
+  }
+
+  .grid{
+
+    grid-template-columns:1fr;
+  }
+
+  .card{
+
+    min-height:240px;
+  }
 }
