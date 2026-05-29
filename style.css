@@ -6,7 +6,24 @@
 
 body{
 
-  background:#0d0d0d;
+  background:
+    radial-gradient(
+      circle at top left,
+      rgba(180,140,90,0.08),
+      transparent 32%
+    ),
+
+    radial-gradient(
+      circle at bottom right,
+      rgba(120,120,180,0.06),
+      transparent 30%
+    ),
+
+    linear-gradient(
+      180deg,
+      #050505,
+      #000000
+    );
 
   color:#f4f1ea;
 
@@ -17,6 +34,26 @@ body{
   min-height:100vh;
 
   overflow-x:hidden;
+}
+
+body::before{
+
+  content:"";
+
+  position:fixed;
+
+  inset:0;
+
+  pointer-events:none;
+
+  background:
+  radial-gradient(
+    circle at center,
+    transparent,
+    rgba(0,0,0,0.28)
+  );
+
+  mix-blend-mode:soft-light;
 }
 
 .container{
