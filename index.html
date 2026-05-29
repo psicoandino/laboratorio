@@ -12,6 +12,10 @@
 
   <title>PSICOANDINO LAB</title>
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;1,300&family=DM+Mono:wght@300;400&family=Outfit:wght@300;400&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="style.css" />
 
 </head>
@@ -22,19 +26,21 @@
 
     <section class="hero">
 
-      <div class="line"></div>
+      <div class="hero-eyebrow">
+        <div class="line"></div>
+        <span class="eyebrow-label">Lab · Archive</span>
+      </div>
 
-      <h1>PSICOANDINO</h1>
+      <h1>PSICO<em>ANDINO</em></h1>
 
-      <p class="hero-description">
-        Experimental HTML archive
-      </p>
+      <p class="hero-description">// Experimental HTML archive</p>
 
-      <div id="last-update"></div>
+      <div class="hero-meta">
+        <div id="last-update"></div>
+        <span class="hero-coords">−33.45° S / −70.66° W</span>
+      </div>
 
-      <button id="random-btn">
-        Random Artifact
-      </button>
+      <button id="random-btn">⟳ Random Artifact</button>
 
     </section>
 
@@ -44,11 +50,7 @@
     ></section>
 
     <footer class="footer">
-
-      <a href="./changelog.txt">
-        View Changelog
-      </a>
-
+      <a href="./changelog.txt">View Changelog</a>
     </footer>
 
   </main>

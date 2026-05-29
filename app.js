@@ -7,8 +7,8 @@ const isMobile =
 window.innerWidth <= 768;
 
 let allProjects = [];
-
 let latestProject = null;
+let cardCount = 0;
 
 async function loadProjects(){
 
@@ -32,9 +32,7 @@ async function loadProjects(){
 
     if(
       !latestProject ||
-
-      new Date(project.updated)
-      >
+      new Date(project.updated) >
       new Date(latestProject.updated)
     ){
       latestProject = project;
@@ -44,7 +42,6 @@ async function loadProjects(){
   }
 
   renderLatestUpdate();
-
   setupRandomButton();
 }
 
@@ -53,13 +50,8 @@ function renderLatestUpdate(){
   document
   .getElementById("last-update")
   .innerHTML = `
-
     Latest transmission:
-
-    <span>
-      ${latestProject.title}
-    </span>
-
+    <span>${latestProject.title}</span>
   `;
 }
 
@@ -67,13 +59,12 @@ function setupRandomButton(){
 
   document
   .getElementById("random-btn")
-  .addEventListener("click",()=>{
+  .addEventListener("click", () => {
 
     const random =
     allProjects[
       Math.floor(
-        Math.random() *
-        allProjects.length
+        Math.random() * allProjects.length
       )
     ];
 
@@ -85,8 +76,12 @@ function setupRandomButton(){
 function createCard(project, folder){
 
   const unavailable =
-  isMobile &&
-  project.mobile === false;
+  isMobile && project.mobile === false;
+
+  cardCount++;
+
+  const index =
+  String(cardCount).padStart(2, "0");
 
   const card =
   document.createElement("article");
@@ -104,103 +99,119 @@ function createCard(project, folder){
 
     <div class="card-content">
 
-      ${
-        project.status
+      <div class="card-top">
+        ${
+          project.status
+          ? `<div class="status-badge">
+               ${project.status.toUpperCase()}
+             </div>`
+          : `<div></div>`
+        }
+        <span class="card-index">
+          ${index}
+        </span>
+      </div>
 
-        ?
+      <h2>${project.title}</h2>
 
-        `
-          <div class="status-badge">
-            ${project.status.toUpperCase()}
-          </div>
-        `
+      <p>${project.description}</p>
 
-        :
+      <div class="card-footer">
 
-        ""
-      }
+        <div class="tags">
+          ${project.tags
+            .map(tag => `
+              <span class="tag">${tag}</span>
+            `)
+            .join("")
+          }
+        </div>
 
-      <h2>
-        ${project.title}
-      </h2>
-
-      <p>
-        ${project.description}
-      </p>
-
-      <div class="tags">
-
-        ${project.tags
-          .map(tag => `
-            <span class="tag">
-              ${tag}
-            </span>
-          `)
-          .join("")
+        ${
+          unavailable
+          ? `<div class="disabled-btn">
+               Desktop Only
+             </div>`
+          : `<a
+               class="open-btn"
+               href="./projects/${folder}/index.html"
+             >
+               Open
+               <span class="arrow">→</span>
+             </a>`
         }
 
       </div>
 
-      ${
-        unavailable
-
-        ?
-
-        `
-          <div class="disabled-btn">
-            Desktop Only
-          </div>
-        `
-
-        :
-
-        `
-          <a
-            class="open-btn"
-            href="./projects/${folder}/index.html"
-          >
-            Open →
-          </a>
-        `
-      }
-
     </div>
   `;
+
+  addTilt(card);
 
   grid.appendChild(card);
 }
 
-function generateSVG(type,color){
+function addTilt(card){
+
+  card.addEventListener("mousemove", (e) => {
+
+    const r = card.getBoundingClientRect();
+
+    const x = (e.clientX - r.left) / r.width  - 0.5;
+    const y = (e.clientY - r.top)  / r.height - 0.5;
+
+    card.style.transition =
+    "transform 0.12s ease, border-color 0.4s, box-shadow 0.4s";
+
+    card.style.transform =
+    `perspective(900px)
+     rotateY(${x * 7}deg)
+     rotateX(${-y * 7}deg)
+     translateY(-4px)`;
+  });
+
+  card.addEventListener("mouseleave", () => {
+
+    card.style.transition =
+    "transform 0.6s cubic-bezier(0.23,1,0.32,1), border-color 0.4s, box-shadow 0.4s";
+
+    card.style.transform = "";
+  });
+}
+
+function generateSVG(type, color){
 
   if(type === "orbit"){
 
     return `
-
       <svg viewBox="0 0 400 400">
 
         <circle
-          cx="200"
-          cy="200"
-          r="120"
-          stroke="${color}"
-          stroke-width="1"
+          cx="200" cy="200" r="140"
+          stroke="${color}" stroke-width="0.8"
           fill="none"
         />
 
         <circle
-          cx="200"
-          cy="200"
-          r="80"
-          stroke="${color}"
-          stroke-width="1"
+          cx="200" cy="200" r="90"
+          stroke="${color}" stroke-width="0.8"
           fill="none"
         />
 
         <circle
-          cx="260"
-          cy="120"
-          r="8"
+          cx="200" cy="200" r="45"
+          stroke="${color}" stroke-width="0.8"
+          fill="none"
+        />
+
+        <circle
+          cx="272" cy="112" r="9"
           fill="${color}"
+        />
+
+        <circle
+          cx="148" cy="236" r="5"
+          fill="${color}" opacity="0.45"
         />
 
       </svg>
@@ -210,74 +221,51 @@ function generateSVG(type,color){
   if(type === "grid"){
 
     return `
-
       <svg viewBox="0 0 400 400">
 
         ${Array
-          .from({length:20})
-          .map((_,i)=>`
-
+          .from({length: 20})
+          .map((_, i) => `
             <line
-              x1="${i*20}"
-              y1="0"
-              x2="${i*20}"
-              y2="400"
-              stroke="${color}"
-              stroke-width="0.5"
+              x1="${i * 20}" y1="0"
+              x2="${i * 20}" y2="400"
+              stroke="${color}" stroke-width="0.5"
             />
-
             <line
-              x1="0"
-              y1="${i*20}"
-              x2="400"
-              y2="${i*20}"
-              stroke="${color}"
-              stroke-width="0.5"
+              x1="0" y1="${i * 20}"
+              x2="400" y2="${i * 20}"
+              stroke="${color}" stroke-width="0.5"
             />
-        `)
-        .join("")
-      }
+          `)
+          .join("")
+        }
 
       </svg>
     `;
   }
 
   return `
-
     <svg viewBox="0 0 400 400">
 
       <circle
-        cx="200"
-        cy="200"
-        r="90"
-        stroke="${color}"
-        stroke-width="1"
+        cx="200" cy="200" r="90"
+        stroke="${color}" stroke-width="0.8"
         fill="none"
       />
 
       ${Array
-        .from({length:12})
-        .map((_,i)=>{
+        .from({length: 12})
+        .map((_, i) => {
 
-          const angle =
-          (Math.PI*2/12)*i;
+          const angle = (Math.PI * 2 / 12) * i;
 
-          const x =
-          200 +
-          Math.cos(angle)*120;
-
-          const y =
-          200 +
-          Math.sin(angle)*120;
+          const x = 200 + Math.cos(angle) * 130;
+          const y = 200 + Math.sin(angle) * 130;
 
           return `
-
             <circle
-              cx="${x}"
-              cy="${y}"
-              r="22"
-              stroke="${color}"
-              stroke-width="1"
+              cx="${x}" cy="${y}" r="20"
+              stroke="${color}" stroke-width="0.8"
               fill="none"
             />
           `;
