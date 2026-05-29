@@ -5,6 +5,9 @@
     "games",
     "generative"
   ],
+
+  "mobile": true,
+  
   "accent": "#FFFFFF",
-  "svg": "car"
+  "svg": "car-racing"
 }
