@@ -1,0 +1,11 @@
+{
+  "title": "White Noise",
+  "description": "Procedural ambient sound generator",
+  "tags": [
+    "audio",
+    "minimal",
+    "generative"
+  ],
+  "accent": "#D4C4A8",
+  "svg": "orbit"
+}

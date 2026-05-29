@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Zen Sleep</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; touch-action: none; }
+    canvas#canvas { position: fixed; top: 0; left: 0; z-index: -1; opacity: 0.65; pointer-events: none; }
+    .glass { background: rgba(255,255,255,0.07); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.12); }
+    /* Hide scrollbar for horizontal preset scroll */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="bg-[#0f172a] text-white h-[100dvh] overflow-hidden flex flex-col relative transition-colors duration-700">
+  <canvas id="canvas"></canvas>
+
+  <header class="flex justify-between items-center px-6 py-5 shrink-0 z-10">
+    <h1 class="text-3xl font-light tracking-widest">sleep.</h1>
+    <div class="flex gap-3">
+      <button onclick="toggleTheme()" id="theme-btn" class="w-10 h-10 rounded-full glass flex items-center justify-center text-lg">🌙</button>
+      <button onclick="toggleSettings()" class="w-10 h-10 rounded-full glass flex items-center justify-center text-lg">⚙️</button>
+    </div>
+  </header>
+
+  <main class="flex-1 flex flex-col justify-center items-center relative z-10 w-full px-4">
+    <div class="relative w-[240px] h-[240px] md:w-[280px] md:h-[280px] flex justify-center items-center cursor-pointer" onclick="togglePlayPause()">
+      <canvas id="visualizer" width="280" height="280" class="absolute inset-0 rounded-full"></canvas>
+      <div id="current-sound" class="absolute z-10 text-center leading-tight">
+        <span class="block text-2xl font-medium tracking-wide">Ready</span>
+        <span class="block text-xs text-white/50 mt-1 uppercase tracking-widest" id="status-text">Tap to Start</span>
+      </div>
+    </div>
+  </main>
+
+  <footer class="shrink-0 w-full px-4 pb-8 z-10 flex flex-col gap-6">
+    
+    <div class="flex overflow-x-auto gap-3 no-scrollbar pb-2 snap-x">
+      <button onclick="loadPreset(0)" id="p0" class="glass snap-center shrink-0 px-6 py-4 rounded-3xl text-sm transition-all">🤍 Classic</button>
+      <button onclick="loadPreset(1)" id="p1" class="glass snap-center shrink-0 px-6 py-4 rounded-3xl text-sm transition-all">🌸 Pink</button>
+      <button onclick="loadPreset(2)" id="p2" class="glass snap-center shrink-0 px-6 py-4 rounded-3xl text-sm transition-all">🟫 Brown</button>
+      <button onclick="loadPreset(3)" id="p3" class="glass snap-center shrink-0 px-6 py-4 rounded-3xl text-sm transition-all">🍼 Womb</button>
+      <button onclick="loadPreset(4)" id="p4" class="glass snap-center shrink-0 px-6 py-4 rounded-3xl text-sm transition-all">🌧 Rain</button>
+    </div>
+
+    <div class="glass rounded-3xl p-5 flex flex-col gap-5">
+      <div class="flex items-center gap-4">
+        <span class="text-white/50 text-xs">🔈</span>
+        <input type="range" id="volume" min="5" max="55" value="25" oninput="updateVolume(this.value)" class="flex-1 accent-sky-400 h-1 bg-white/20 rounded-full appearance-none">
+        <span id="vol-val" class="text-xs w-8 text-right">25%</span>
+      </div>
+      
+      <div class="flex justify-between items-center border-t border-white/10 pt-4">
+        <span class="text-xs text-white/50 uppercase tracking-wider">Timer</span>
+        <div class="flex gap-2">
+          <button onclick="setTimer(15)" class="px-3 py-1 rounded-full bg-white/10 text-xs">15m</button>
+          <button onclick="setTimer(30)" class="px-3 py-1 rounded-full bg-white/10 text-xs">30m</button>
+          <button onclick="setTimer(0)" class="px-3 py-1 rounded-full bg-white/20 text-xs font-medium">∞</button>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <div id="settings-modal" class="fixed inset-0 bg-[#0f172a]/95 backdrop-blur-xl z-50 transform translate-y-full transition-transform duration-300 flex flex-col">
+    <div class="flex justify-between items-center px-6 py-5">
+      <h2 class="text-xl font-light">Acoustic Tuning</h2>
+      <button onclick="toggleSettings()" class="w-10 h-10 rounded-full glass flex items-center justify-center">✕</button>
+    </div>
+    
+    <div class="flex-1 overflow-y-auto px-6 pb-8 space-y-8">
+      <div>
+        <label class="flex justify-between mb-3 text-sm"><span>Low Frequency Cut</span><span id="low-val" class="text-sky-300">80 Hz</span></label>
+        <input type="range" id="lowcut" min="30" max="350" value="80" oninput="updateFilters()" class="w-full accent-sky-400">
+      </div>
+      <div>
+        <label class="flex justify-between mb-3 text-sm"><span>High Frequency Cut</span><span id="high-val" class="text-sky-300">8000 Hz</span></label>
+        <input type="range" id="highcut" min="2000" max="16000" value="8000" oninput="updateFilters()" class="w-full accent-sky-400">
+      </div>
+      <div>
+        <label class="flex justify-between mb-3 text-sm"><span>Sub-Bass Resonance</span><span id="bass-val" class="text-amber-300">50</span></label>
+        <input type="range" id="bass" min="0" max="100" value="50" oninput="updateFilters()" class="w-full accent-amber-400">
+      </div>
+      <div>
+        <label class="flex justify-between mb-3 text-sm"><span>Signal Turbulence</span><span id="turb-val" class="text-purple-300">40</span></label>
+        <input type="range" id="turbulence" min="0" max="100" value="40" oninput="updateFilters()" class="w-full accent-purple-400">
+      </div>
+      
+      <button onclick="saveCustomPreset()" class="w-full glass py-4 rounded-2xl text-sm mt-4 font-medium tracking-wide">Save Configuration to Memory</button>
+    </div>
+  </div>
+
+  <script>
+    let audioContext, gainNode, filterLow, filterHigh, currentSource = null;
+    let currentType = 'white';
+    let isPlaying = false;
+    let timerId = null;
+    let currentTheme = 'dark';
+    let activePreset = null;
+
+    // --- Visual Systems ---
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    class Particle {
+      constructor() { this.reset(); }
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 2.5 + 0.8;
+        this.speed = Math.random() * 0.4 + 0.2;
+        this.opacity = Math.random() * 0.4 + 0.1;
+      }
+      update() { this.y -= this.speed; if (this.y < 0) this.reset(); }
+      draw() {
+        ctx.fillStyle = currentTheme === 'dark' ? `rgba(165, 243, 252, ${this.opacity})` : `rgba(251, 191, 36, ${this.opacity*0.8})`;
+        ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill();
+      }
+    }
+
+    function initParticles() { particles = Array.from({length: 60}, () => new Particle()); }
+
+    function animateBackground() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => { p.update(); p.draw(); });
+      ctx.strokeStyle = currentTheme === 'dark' ? 'rgba(165,243,252,0.08)' : 'rgba(245,158,11,0.1)';
+      for (let i = 0; i < 4; i++) {
+        ctx.beginPath();
+        for (let x = 0; x < canvas.width; x += 15) {
+          const y = canvas.height * 0.7 + Math.sin(x*0.002 + Date.now()*0.0005 + i) * 35;
+          ctx.lineTo(x, y + i*20);
+        }
+        ctx.stroke();
+      }
+      requestAnimationFrame(animateBackground);
+    }
+
+    const vCanvas = document.getElementById('visualizer');
+    const vctx = vCanvas.getContext('2d');
+    let angle = 0;
+
+    function drawVisualizer() {
+      const width = vCanvas.width;
+      const height = vCanvas.height;
+      vctx.clearRect(0, 0, width, height);
+      const cx = width / 2, cy = height / 2;
+
+      if (isPlaying) {
+        angle += 0.04;
+        const intensity = Math.sin(angle) * 12 + (width * 0.25);
+        for (let i = 0; i < 4; i++) {
+          vctx.beginPath();
+          vctx.arc(cx, cy, intensity + i*20, 0, Math.PI*2);
+          vctx.strokeStyle = currentTheme === 'dark' ? `rgba(165, 243, 252, ${0.4 - i*0.1})` : `rgba(251, 191, 36, ${0.4 - i*0.1})`;
+          vctx.lineWidth = 3 - i*0.5;
+          vctx.stroke();
+        }
+      } else {
+        vctx.beginPath();
+        vctx.arc(cx, cy, width * 0.3, 0, Math.PI*2);
+        vctx.strokeStyle = currentTheme === 'dark' ? 'rgba(165,243,252,0.15)' : 'rgba(251,191,36,0.15)';
+        vctx.lineWidth = 2;
+        vctx.stroke();
+      }
+      requestAnimationFrame(drawVisualizer);
+    }
+
+    // --- Audio Subsystem ---
+    function initAudio() {
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        gainNode = audioContext.createGain();
+        filterLow = audioContext.createBiquadFilter();
+        filterHigh = audioContext.createBiquadFilter();
+        filterLow.type = 'lowshelf';
+        filterHigh.type = 'highshelf';
+        filterLow.connect(filterHigh);
+        filterHigh.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+      }
+      if(audioContext.state === 'suspended') audioContext.resume();
+    }
+
+    function createNoiseBuffer(type) {
+      const size = audioContext.sampleRate * 4;
+      const buffer = audioContext.createBuffer(1, size, audioContext.sampleRate);
+      const data = buffer.getChannelData(0);
+      let last = 0;
+      const turb = parseFloat(document.getElementById('turbulence').value) / 100;
+      for (let i = 0; i < size; i++) {
+        let val = Math.random() * 2 - 1;
+        if (type !== 'white') {
+          val = (last + (turb * 0.018 * val)) / (1 + turb * 0.018);
+          last = val;
+          val *= type === 'brown' ? 8 : 3.5;
+        }
+        data[i] = val;
+      }
+      return buffer;
+    }
+
+    function togglePlayPause() {
+        if(isPlaying) {
+            stopAll(false);
+            document.getElementById('status-text').textContent = "Tap to Resume";
+        } else {
+            if(activePreset === null) loadPreset(0);
+            else playNoise(currentType);
+        }
+    }
+
+    function playNoise(type) {
+      initAudio();
+      if(currentSource) currentSource.stop();
+      currentType = type;
+      const source = audioContext.createBufferSource();
+      source.buffer = createNoiseBuffer(type);
+      source.loop = true;
+      source.connect(filterLow);
+      source.start();
+      currentSource = source;
+      isPlaying = true;
+      document.getElementById('status-text').textContent = "Synthesizing";
+      updateFilters();
+    }
+
+    function updateFilters() {
+      if (!filterLow || !filterHigh) return;
+      const low = +document.getElementById('lowcut').value;
+      const high = +document.getElementById('highcut').value;
+      const bass = +document.getElementById('bass').value;
+      const turb = +document.getElementById('turbulence').value;
+      filterLow.frequency.value = low;
+      filterLow.gain.value = bass / 6 - 4;
+      filterHigh.frequency.value = high;
+      filterHigh.gain.value = -10;
+      document.getElementById('low-val').textContent = low + " Hz";
+      document.getElementById('high-val').textContent = high + " Hz";
+      document.getElementById('bass-val').textContent = bass;
+      document.getElementById('turb-val').textContent = turb;
+    }
+
+    function updateVolume(val) {
+      if (gainNode) gainNode.gain.value = val / 100;
+      document.getElementById('vol-val').textContent = val + "%";
+    }
+
+    function loadPreset(n) {
+      activePreset = n;
+      document.querySelectorAll('[id^="p"]').forEach(b => {
+          b.classList.remove('bg-white/20', 'border-white/40');
+          b.classList.add('bg-white/5');
+      });
+      const activeBtn = document.getElementById('p'+n);
+      activeBtn.classList.remove('bg-white/5');
+      activeBtn.classList.add('bg-white/20', 'border-white/40');
+
+      const presets = [
+        {name:"Classic", type:'white', low:65, high:12500, bass:35, turb:25},
+        {name:"Pink", type:'pink', low:95, high:9200, bass:55, turb:45},
+        {name:"Brown", type:'brown', low:45, high:5800, bass:85, turb:65},
+        {name:"Womb", type:'womb', low:75, high:4800, bass:70, turb:40},
+        {name:"Rain", type:'rain', low:120, high:7800, bass:60, turb:55}
+      ];
+
+      const p = presets[n];
+      document.getElementById('current-sound').innerHTML = `
+        <span class="block text-3xl font-light tracking-wide">${p.name}</span>
+        <span class="block text-xs text-white/50 mt-2 uppercase tracking-widest" id="status-text">Synthesizing</span>
+      `;
+      
+      document.getElementById('lowcut').value = p.low;
+      document.getElementById('highcut').value = p.high;
+      document.getElementById('bass').value = p.bass;
+      document.getElementById('turbulence').value = p.turb;
+
+      playNoise(p.type);
+    }
+
+    function saveCustomPreset() {
+      const settings = {
+        volume: document.getElementById('volume').value,
+        lowcut: document.getElementById('lowcut').value,
+        highcut: document.getElementById('highcut').value,
+        bass: document.getElementById('bass').value,
+        turbulence: document.getElementById('turbulence').value,
+        type: currentType
+      };
+      localStorage.setItem('babySleepCustom', JSON.stringify(settings));
+      toggleSettings();
+      // Brief visual feedback
+      const status = document.getElementById('status-text');
+      status.textContent = "Parameters Saved";
+      setTimeout(() => { if(isPlaying) status.textContent = "Synthesizing"; }, 2000);
+    }
+
+    function setTimer(minutes) {
+      if (timerId) clearTimeout(timerId);
+      const status = document.getElementById('status-text');
+      if (minutes === 0) {
+          status.textContent = "Continuous Loop";
+          return;
+      }
+      status.textContent = `Timer: ${minutes}m`;
+      timerId = setTimeout(() => {
+        if (currentSource) {
+          let vol = gainNode.gain.value;
+          const fade = setInterval(() => {
+            vol -= 0.02;
+            if (vol <= 0) { clearInterval(fade); stopAll(); } 
+            else { gainNode.gain.value = vol; }
+          }, 150);
+        }
+      }, minutes * 60000);
+    }
+
+    function stopAll(resetUI = true) {
+      if (currentSource) currentSource.stop();
+      currentSource = null;
+      isPlaying = false;
+      if (resetUI) {
+        activePreset = null;
+        document.querySelectorAll('[id^="p"]').forEach(b => {
+            b.classList.remove('bg-white/20', 'border-white/40');
+            b.classList.add('bg-white/5');
+        });
+        document.getElementById('current-sound').innerHTML = `
+            <span class="block text-2xl font-medium tracking-wide">Ready</span>
+            <span class="block text-xs text-white/50 mt-1 uppercase tracking-widest" id="status-text">Tap to Start</span>
+        `;
+      }
+    }
+
+    // --- UI Control Logic ---
+    function toggleSettings() {
+        const modal = document.getElementById('settings-modal');
+        modal.classList.toggle('translate-y-full');
+    }
+
+    function toggleTheme() {
+      currentTheme = currentTheme === 'dark' ? 'warm' : 'dark';
+      document.getElementById('theme-btn').textContent = currentTheme === 'dark' ? '🌙' : '☀️';
+      document.body.style.backgroundColor = currentTheme === 'dark' ? '#0f172a' : '#291206';
+      
+      // Update modal background to match theme
+      const modal = document.getElementById('settings-modal');
+      modal.className = `fixed inset-0 backdrop-blur-xl z-50 transform transition-transform duration-300 flex flex-col ${currentTheme === 'dark' ? 'bg-[#0f172a]/95' : 'bg-[#291206]/95'} ${modal.classList.contains('translate-y-full') ? 'translate-y-full' : ''}`;
+    }
+
+    window.onload = () => {
+      resizeCanvas();
+      window.addEventListener('resize', resizeCanvas);
+      initParticles();
+      animateBackground();
+      drawVisualizer();
+      updateVolume(25);
+      updateFilters();
+    };
+  </script>
+</body>
+</html>
