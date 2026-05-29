@@ -7,7 +7,7 @@
     "desktop-only"
   ],
 
-  "mobile": false,
+  "mobile": true,
 
   "accent": "#D4C4A8",
   "svg": "orbit"
