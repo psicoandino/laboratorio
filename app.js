@@ -1,10 +1,14 @@
-const isMobile =
-window.innerWidth <= 768;
-
 const grid =
 document.getElementById(
   "projects-grid"
 );
+
+const isMobile =
+window.innerWidth <= 768;
+
+let allProjects = [];
+
+let latestProject = null;
 
 async function loadProjects(){
 
@@ -16,6 +20,8 @@ async function loadProjects(){
 
   for(const folder of projectFolders){
 
+    allProjects.push(folder);
+
     const metaResponse =
     await fetch(
       `./projects/${folder}/meta.json`
@@ -24,13 +30,63 @@ async function loadProjects(){
     const project =
     await metaResponse.json();
 
+    if(
+      !latestProject ||
+
+      new Date(project.updated)
+      >
+      new Date(latestProject.updated)
+    ){
+      latestProject = project;
+    }
+
     createCard(project, folder);
   }
+
+  renderLatestUpdate();
+
+  setupRandomButton();
+}
+
+function renderLatestUpdate(){
+
+  document
+  .getElementById("last-update")
+  .innerHTML = `
+
+    Latest transmission:
+
+    <span>
+      ${latestProject.title}
+    </span>
+
+  `;
+}
+
+function setupRandomButton(){
+
+  document
+  .getElementById("random-btn")
+  .addEventListener("click",()=>{
+
+    const random =
+    allProjects[
+      Math.floor(
+        Math.random() *
+        allProjects.length
+      )
+    ];
+
+    window.location.href =
+    `./projects/${random}/index.html`;
+  });
 }
 
 function createCard(project, folder){
+
   const unavailable =
-    isMobile && project.mobile === false;
+  isMobile &&
+  project.mobile === false;
 
   const card =
   document.createElement("article");
@@ -46,9 +102,23 @@ function createCard(project, folder){
       )}
     </div>
 
-    ${ project.status ? ` <div class="status-badge"> ${project.status.toUpperCase()} </div> ` : "" }
-
     <div class="card-content">
+
+      ${
+        project.status
+
+        ?
+
+        `
+          <div class="status-badge">
+            ${project.status.toUpperCase()}
+          </div>
+        `
+
+        :
+
+        ""
+      }
 
       <h2>
         ${project.title}
@@ -73,17 +143,17 @@ function createCard(project, folder){
 
       ${
         unavailable
-      
+
         ?
-      
+
         `
           <div class="disabled-btn">
             Desktop Only
           </div>
         `
-      
+
         :
-      
+
         `
           <a
             class="open-btn"
