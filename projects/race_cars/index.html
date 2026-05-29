@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Psicoandino Sovereign Engine - Beta 3.0</title>
+    <style>
+        :root {
+            --primary-color: #FF0000;
+            --bg-color: #000000;
+            --text-muted: #444444;
+            --hazard-color: #FFFFFF; /* High contrast for missiles */
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--primary-color);
+            font-family: 'Courier New', Courier, monospace;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #dashboard {
+            display: flex;
+            width: 98vw;
+            max-width: 1600px;
+            height: 95vh;
+            border: 2px solid var(--text-muted);
+            box-shadow: 0 0 30px rgba(0,0,0,0.9);
+        }
+
+        .panel {
+            flex: 1;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #matrix-container {
+            flex: 2.5;
+            border-left: 2px solid var(--text-muted);
+            border-right: 2px solid var(--text-muted);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(circle, rgba(20,20,20,1) 0%, rgba(0,0,0,1) 100%);
+        }
+
+        pre {
+            font-size: 26px;
+            line-height: 26px;
+            margin: 0;
+            text-shadow: 0 0 8px var(--primary-color);
+            letter-spacing: 4px;
+            font-weight: bold;
+        }
+
+        /* Target specific characters in the grid using CSS classes via JS */
+        .hazard {
+            color: var(--hazard-color);
+            text-shadow: 0 0 10px var(--hazard-color);
+        }
+
+        h2 {
+            font-size: 28px;
+            text-transform: uppercase;
+            border-bottom: 2px solid var(--text-muted);
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+            color: #FFFFFF;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .philosophy {
+            margin-top: auto;
+            font-size: 18px;
+            line-height: 1.5;
+            color: var(--text-muted);
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .crashed {
+            animation: glitch 0.2s infinite;
+            color: #FFFFFF !important;
+        }
+
+        @keyframes glitch {
+            0% { transform: translate(0) }
+            20% { transform: translate(-3px, 3px) }
+            40% { transform: translate(-3px, -3px) }
+            60% { transform: translate(3px, 3px) }
+            80% { transform: translate(3px, -3px) }
+            100% { transform: translate(0) }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="dashboard">
+        <!-- Left HUD -->
+        <div class="panel">
+            <h2>System Status</h2>
+            <div class="stat-row"><span>State:</span> <span id="ui-state">RUNNING</span></div>
+            <div class="stat-row"><span>Cycle:</span> <span id="ui-cycle">0</span></div>
+            <div class="stat-row"><span>Entropy:</span> <span id="ui-score">0</span></div>
+            <div class="stat-row"><span>Velocity:</span> <span id="ui-speed">1.0x</span></div>
+        </div>
+
+        <!-- Center Matrix -->
+        <div id="matrix-container">
+            <pre id="matrix"></pre>
+        </div>
+
+        <!-- Right HUD -->
+        <div class="panel">
+            <h2>Telemetry</h2>
+            <div class="stat-row"><span>Color Phase:</span> <span id="ui-color">#FF0000</span></div>
+            <div class="stat-row"><span>Complexity:</span> <span id="ui-complex">LOW</span></div>
+            <div class="stat-row"><span>Anomalies:</span> <span id="ui-anomalies">0</span></div>
+            
+            <div class="philosophy">
+                DIOS . CIENCIA . MENTE<br><br>
+                Use Arrows to Move 4-Ways.<br>Dodge the Anomaly Missiles.<br>Spacebar to Restart.
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        // System Parameters
+        const WIDTH = 40;
+        const HEIGHT = 22;
+        const ROAD_WIDTH = 16; 
+        const CYCLE_LENGTH = 200;
+        
+        // Synesthesia Mapping: Colors to Frequencies
+        const PALETTE = ['#FF0000', '#FFA500', '#FFFF00', '#008000', '#0000FF', '#800080'];
+        const FREQUENCIES = [261.6, 293.6, 329.6, 349.2, 392.0, 440.0];
+
+        // --- AUDIO ENGINE ---
+        class SovereignAudio {
+            constructor() {
+                this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                this.baseFreq = 261.6;
+            }
+
+            updateBaseFrequency(freq) {
+                this.baseFreq = freq;
+            }
+
+            playMove(direction, isTimeFrozen = false) {
+                if (this.ctx.state === 'suspended') return;
+                
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                const panner = this.ctx.createStereoPanner();
+
+                // Detune slightly if moving while time is frozen to give acoustic feedback
+                osc.type = 'sine';
+                let frequencyMultiplier = isTimeFrozen ? 1.2 : 1.0;
+                
+                if (direction === 'up') osc.frequency.value = this.baseFreq * 1.5 * frequencyMultiplier;
+                else if (direction === 'down') osc.frequency.value = this.baseFreq * 0.75 * frequencyMultiplier;
+                else osc.frequency.value = this.baseFreq * frequencyMultiplier;
+
+                if (direction === 'left') panner.pan.value = -0.8;
+                else if (direction === 'right') panner.pan.value = 0.8;
+                else panner.pan.value = 0;
+
+                gain.gain.setValueAtTime(0, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.08, this.ctx.currentTime + 0.02);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.1);
+
+                osc.connect(panner).connect(gain).connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.1);
+            }
+
+            playAlarmRing() {
+                if (this.ctx.state === 'suspended') return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                
+                osc.type = 'triangle'; 
+                osc.frequency.value = this.baseFreq * 1.059; 
+                
+                gain.gain.setValueAtTime(0, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.05, this.ctx.currentTime + 0.02);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.1);
+
+                osc.connect(gain).connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.1);
+            }
+
+            playMissile() {
+                if (this.ctx.state === 'suspended') return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(this.baseFreq * 2, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(100, this.ctx.currentTime + 0.2);
+
+                gain.gain.setValueAtTime(0, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.1, this.ctx.currentTime + 0.02);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.2);
+
+                osc.connect(gain).connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.2);
+            }
+
+            playCrash() {
+                if (this.ctx.state === 'suspended') return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                
+                osc.type = 'sawtooth'; 
+                osc.frequency.setValueAtTime(120, this.ctx.currentTime);
+                osc.frequency.linearRampToValueAtTime(40, this.ctx.currentTime + 0.3);
+
+                gain.gain.setValueAtTime(0, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.15, this.ctx.currentTime + 0.05);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.3);
+
+                osc.connect(gain).connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.3);
+            }
+        }
+
+        let audioEngine = new SovereignAudio();
+
+        // --- STATE VARIABLES ---
+        let grid = [];
+        let carX = Math.floor(WIDTH / 2);
+        let carY = HEIGHT - 4; 
+        let roadCenter = Math.floor(WIDTH / 2);
+        
+        let score = 0;
+        let cycle = 0;
+        let anomalyCount = 0;
+        let crashCount = 0; 
+        let driftCount = 0; // Tracks movements made outside of time execution
+        
+        let isPaused = false;
+        let invulnerabilityFrames = 0; 
+        
+        let baseDelay = 80;
+        let currentDelay = baseDelay;
+        let timeOffset = 0;
+
+        let turrets = [];
+        let missiles = [];
+
+        // --- DOM ELEMENTS ---
+        const matrixEl = document.getElementById('matrix');
+        const stateEl = document.getElementById('ui-state');
+        const cycleEl = document.getElementById('ui-cycle');
+        const scoreEl = document.getElementById('ui-score');
+        const speedEl = document.getElementById('ui-speed');
+        const colorEl = document.getElementById('ui-color');
+        const complexEl = document.getElementById('ui-complex');
+        const anomalyEl = document.getElementById('ui-anomalies');
+
+        // Inject Crash telemetry safely
+        const leftPanel = document.querySelector('.panel');
+        const crashRow = document.createElement('div');
+        crashRow.className = 'stat-row';
+        crashRow.innerHTML = `<span>Crashes:</span> <span id="ui-crashes" style="color: #FFF;">0</span>`;
+        leftPanel.appendChild(crashRow);
+        const crashEl = document.getElementById('ui-crashes');
+
+        // Inject Anomalous Drift telemetry into Right Panel
+        const rightPanel = document.querySelectorAll('.panel')[1];
+        const driftRow = document.createElement('div');
+        driftRow.className = 'stat-row';
+        driftRow.innerHTML = `<span>A. Drift:</span> <span id="ui-drift" style="color: #FFFF00;">0</span>`;
+        rightPanel.insertBefore(driftRow, rightPanel.querySelector('.philosophy'));
+        const driftEl = document.getElementById('ui-drift');
+
+        // Update footer layout text
+        document.querySelector('.philosophy').innerHTML = `
+            DIOS . CIENCIA . MENTE<br><br>
+            Arrows to Move (even when Paused).<br>
+            Press [ P ] to Freeze / Resume Time.<br>
+            Spacebar to Force Restart.
+        `;
+
+        // --- MATH & UTILS ---
+        function hexToRgb(hex) {
+            let bigint = parseInt(hex.slice(1), 16);
+            return [(bigint >> 16) & 255, (bigint >> 8) & 255, bigint & 255];
+        }
+
+        function rgbToHex(r, g, b) {
+            return "#" + (1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1).toUpperCase().padStart(6, '0');
+        }
+
+        function lerp(a, b, t) {
+            return a + (b - a) * t;
+        }
+
+        function updateFluidColor() {
+            let phaseProgress = (score % CYCLE_LENGTH) / CYCLE_LENGTH;
+            let index = cycle % PALETTE.length;
+            let nextIndex = (cycle + 1) % PALETTE.length;
+            
+            let rgb1 = hexToRgb(PALETTE[index]);
+            let rgb2 = hexToRgb(PALETTE[nextIndex]);
+            let r = Math.round(lerp(rgb1[0], rgb2[0], phaseProgress));
+            let g = Math.round(lerp(rgb1[1], rgb2[1], phaseProgress));
+            let b = Math.round(lerp(rgb1[2], rgb2[2], phaseProgress));
+            let currentColor = rgbToHex(r, g, b);
+            
+            let currentFreq = lerp(FREQUENCIES[index], FREQUENCIES[nextIndex], phaseProgress);
+            audioEngine.updateBaseFrequency(currentFreq);
+
+            document.documentElement.style.setProperty('--primary-color', currentColor);
+            colorEl.innerText = currentColor;
+        }
+
+        // --- CORE LOOP ---
+        function generateRow(isStarting = false) {
+            let row = new Array(WIDTH).fill('.');
+            let progress = (score % CYCLE_LENGTH) / CYCLE_LENGTH;
+            let amplitude = isStarting ? 0 : 2 + (progress * 7) + (cycle * 1.5); 
+            let frequency = isStarting ? 0 : 0.05 + (progress * 0.05);
+            
+            if (progress < 0.2) complexEl.innerText = "PLATEAU";
+            else if (progress < 0.7) complexEl.innerText = "SURGE";
+            else complexEl.innerText = "RELIEF";
+
+            timeOffset += frequency;
+            let drift = Math.sin(timeOffset) * amplitude;
+            roadCenter = Math.floor((WIDTH / 2) + drift);
+
+            if (roadCenter - ROAD_WIDTH / 2 < 1) roadCenter = ROAD_WIDTH / 2 + 1;
+            if (roadCenter + ROAD_WIDTH / 2 > WIDTH - 2) roadCenter = WIDTH - ROAD_WIDTH / 2 - 2;
+
+            let leftEdge = Math.floor(roadCenter - ROAD_WIDTH / 2);
+            let rightEdge = Math.floor(roadCenter + ROAD_WIDTH / 2);
+
+            for (let i = 0; i < WIDTH; i++) {
+                if (i < leftEdge || i > rightEdge) row[i] = '#';
+                if (i === leftEdge || i === rightEdge) row[i] = '|';
+            }
+            return row;
+        }
+
+        function initGrid() {
+            grid = [];
+            for (let i = 0; i < HEIGHT; i++) {
+                grid.push(generateRow(true));
+            }
+        }
+
+        function drawGrid() {
+            let output = "";
+            for (let i = 0; i < HEIGHT; i++) {
+                let rowChars = [...grid[i]];
+                
+                for (let t of turrets) {
+                    if (t.y === i && Math.floor(t.timer / 2) % 2 === 0) {
+                        rowChars[t.x] = '◈'; 
+                    }
+                }
+
+                for (let m of missiles) {
+                    if (m.y === i && m.x >= 0 && m.x < WIDTH) {
+                        rowChars[m.x] = '—';
+                    }
+                }
+
+                if (i === carY) {
+                    let c = rowChars[carX];
+                    let hittingObstacle = (c === '#' || c === '|' || c === '◈' || c === '—');
+                    
+                    if (hittingObstacle && invulnerabilityFrames === 0) {
+                        crashCount++;
+                        crashEl.innerText = crashCount;
+                        audioEngine.playCrash();
+                        invulnerabilityFrames = 10; 
+                        rowChars[carX] = 'X';
+                    } else if (invulnerabilityFrames > 0) {
+                        rowChars[carX] = (invulnerabilityFrames % 2 === 0) ? ' ' : '∆';
+                    } else {
+                        rowChars[carX] = '∆';
+                    }
+                }
+                
+                let rowStr = rowChars.join('');
+                rowStr = rowStr.replace(/◈/g, '<span class="hazard">◈</span>');
+                rowStr = rowStr.replace(/—/g, '<span class="hazard">—</span>');
+                output += rowStr + "\n";
+            }
+            matrixEl.innerHTML = output;
+        }
+
+        function gameLoop() {
+            if (isPaused) return; 
+
+            if (invulnerabilityFrames > 0) invulnerabilityFrames--;
+
+            grid.pop(); 
+            grid.unshift(generateRow()); 
+            score++;
+            
+            if (score > 0 && score % CYCLE_LENGTH === 0) {
+                cycle++;
+                cycleEl.innerText = cycle;
+            }
+
+            let spawnRate = Math.max(15, 40 - (cycle * 5));
+            if (score > 20 && score % spawnRate === 0) {
+                let leftEdge = Math.floor(roadCenter - ROAD_WIDTH / 2);
+                let rightEdge = Math.floor(roadCenter + ROAD_WIDTH / 2);
+                let side = Math.random() > 0.5 ? 'left' : 'right';
+                turrets.push({
+                    x: side === 'left' ? leftEdge : rightEdge,
+                    y: 0, 
+                    timer: 0,
+                    side: side
+                });
+            }
+
+            for (let t of turrets) {
+                t.y += 1; 
+                t.timer += 1;
+                
+                if (t.timer === 1 || t.timer === 6 || t.timer === 11) {
+                    audioEngine.playAlarmRing();
+                }
+
+                if (t.timer === 15) {
+                    audioEngine.playMissile();
+                    missiles.push({
+                        x: t.x + (t.side === 'left' ? 1 : -1),
+                        y: t.y,
+                        vx: t.side === 'left' ? 1 : -1
+                    });
+                    anomalyCount++;
+                    anomalyEl.innerText = anomalyCount;
+                }
+            }
+            turrets = turrets.filter(t => t.timer < 15 && t.y < HEIGHT);
+
+            for (let m of missiles) {
+                m.y += 1;  
+                m.x += m.vx; 
+            }
+            missiles = missiles.filter(m => m.y < HEIGHT && m.x > 0 && m.x < WIDTH - 1);
+            
+            let speedMultiplier = 1 + Math.log10(1 + cycle + ((score % CYCLE_LENGTH) / CYCLE_LENGTH));
+            currentDelay = Math.max(25, baseDelay / speedMultiplier);
+            
+            scoreEl.innerText = score;
+            speedEl.innerText = speedMultiplier.toFixed(2) + "x";
+
+            updateFluidColor();
+            drawGrid();
+            setTimeout(gameLoop, currentDelay);
+        }
+
+        // --- CONTROLS ---
+        window.addEventListener('keydown', (e) => {
+            if(e.code === 'Space') e.preventDefault();
+            
+            if (audioEngine.ctx.state === 'suspended') {
+                audioEngine.ctx.resume();
+            }
+            
+            if (e.code === 'Space') {
+                location.reload(); 
+                return;
+            }
+
+            if (e.key === 'p' || e.key === 'P') {
+                isPaused = !isPaused;
+                if (isPaused) {
+                    stateEl.innerText = "TIME_FROZEN";
+                    stateEl.style.color = "#FFFF00";
+                } else {
+                    stateEl.innerText = "RUNNING";
+                    stateEl.style.color = "var(--primary-color)";
+                    gameLoop(); 
+                }
+                return;
+            }
+            
+            // Movement Engine execution (Runs whether time is moving or frozen)
+            let moved = false;
+            if (e.key === 'ArrowLeft' && carX > 0) { carX--; moved = true; audioEngine.playMove('left', isPaused); }
+            if (e.key === 'ArrowRight' && carX < WIDTH - 1) { carX++; moved = true; audioEngine.playMove('right', isPaused); }
+            if (e.key === 'ArrowUp' && carY > 0) { carY--; moved = true; audioEngine.playMove('up', isPaused); }
+            if (e.key === 'ArrowDown' && carY < HEIGHT - 1) { carY++; moved = true; audioEngine.playMove('down', isPaused); }
+            
+            if (moved) {
+                if (isPaused) {
+                    driftCount++;
+                    driftEl.innerText = driftCount;
+                }
+                drawGrid(); // Force re-render immediately to show space transition
+            }
+        });
+
+        initGrid();
+        drawGrid();
+        setTimeout(gameLoop, 1000);
+
+    </script>
+</body>
+</html>
