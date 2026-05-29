@@ -1,11 +1,14 @@
 {
-  "title": "White Noise",
-  "description": "Procedural ambient sound generator",
+  "title": "White Noise Playground",
+  "description": "Ambient sound generator",
   "tags": [
     "audio",
-    "minimal",
-    "generative"
+    "generative",
+    "desktop-only"
   ],
+
+  "mobile": false,
+
   "accent": "#D4C4A8",
   "svg": "orbit"
 }
