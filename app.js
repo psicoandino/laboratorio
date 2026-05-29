@@ -43,6 +43,7 @@ async function loadProjects(){
 
   renderLatestUpdate();
   setupRandomButton();
+  setupProjectFilters();
 }
 
 function renderLatestUpdate(){
@@ -87,6 +88,11 @@ function createCard(project, folder){
   document.createElement("article");
 
   card.className = "card";
+  card.dataset.title = project.title.toLowerCase();
+  card.dataset.description = project.description.toLowerCase();
+  card.dataset.tags = project.tags
+    .map(tag => tag.toLowerCase())
+    .join(",");
 
   card.innerHTML = `
 
@@ -149,6 +155,98 @@ function createCard(project, folder){
   addTilt(card);
 
   grid.appendChild(card);
+}
+
+function setupProjectFilters(){
+
+  const filterBar =
+  document.createElement("div");
+
+  filterBar.className = "filter-bar";
+
+  const search =
+  document.createElement("input");
+
+  search.className = "filter-search";
+  search.type = "search";
+  search.placeholder = "Search transmissions";
+  search.setAttribute("aria-label", "Search projects");
+
+  const tagWrap =
+  document.createElement("div");
+
+  tagWrap.className = "filter-tags";
+
+  const tags =
+  [...new Set(
+    [...document.querySelectorAll(".tag")]
+      .map(tag => tag.textContent.trim())
+  )];
+
+  let activeTag = "";
+
+  tags.forEach(tag => {
+
+    const pill =
+    document.createElement("button");
+
+    pill.className = "filter-pill";
+    pill.type = "button";
+    pill.textContent = tag;
+    pill.dataset.tag = tag.toLowerCase();
+
+    pill.addEventListener("click", () => {
+
+      activeTag =
+      activeTag === pill.dataset.tag
+        ? ""
+        : pill.dataset.tag;
+
+      document
+      .querySelectorAll(".filter-pill")
+      .forEach(item => {
+        item.classList.toggle(
+          "active",
+          item.dataset.tag === activeTag
+        );
+      });
+
+      filterProjects();
+    });
+
+    tagWrap.appendChild(pill);
+  });
+
+  filterBar.append(search, tagWrap);
+
+  grid.parentNode.insertBefore(filterBar, grid);
+
+  search.addEventListener("input", filterProjects);
+
+  function filterProjects(){
+
+    const query =
+    search.value.trim().toLowerCase();
+
+    document
+    .querySelectorAll(".card")
+    .forEach(card => {
+
+      const matchesSearch =
+      !query ||
+      card.dataset.title.includes(query) ||
+      card.dataset.description.includes(query);
+
+      const matchesTag =
+      !activeTag ||
+      card.dataset.tags.split(",").includes(activeTag);
+
+      card.classList.toggle(
+        "filtered-out",
+        !(matchesSearch && matchesTag)
+      );
+    });
+  }
 }
 
 function addTilt(card){
