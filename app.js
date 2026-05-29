@@ -46,6 +46,8 @@ function createCard(project, folder){
       )}
     </div>
 
+    ${ project.status ? ` <div class="status-badge"> ${project.status.toUpperCase()} </div> ` : "" }
+
     <div class="card-content">
 
       <h2>
