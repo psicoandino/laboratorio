@@ -10,6 +10,57 @@ let allProjects = [];
 let latestProject = null;
 let cardCount = 0;
 
+function injectStickyBar(){
+
+  if(isMobile || document.getElementById("sticky-bar")) return;
+
+  document.body.insertAdjacentHTML(
+    "afterbegin",
+    `
+      <header id="sticky-bar" aria-hidden="true">
+        <span class="sticky-title">PSICO<em>ANDINO</em></span>
+        <button id="sticky-random">⟳ Random Artifact</button>
+      </header>
+    `
+  );
+
+  setupStickyBar();
+}
+
+function setupStickyBar(){
+
+  const stickyBar =
+  document.getElementById("sticky-bar");
+
+  const hero =
+  document.querySelector(".hero");
+
+  if(!stickyBar || !hero) return;
+
+  document
+  .getElementById("sticky-random")
+  .addEventListener("click", navigateRandomProject);
+
+  const observer =
+  new IntersectionObserver(entries => {
+
+    const isVisible =
+    entries[0].isIntersecting;
+
+    stickyBar.classList.toggle(
+      "visible",
+      !isVisible
+    );
+
+    stickyBar.setAttribute(
+      "aria-hidden",
+      isVisible ? "true" : "false"
+    );
+  });
+
+  observer.observe(hero);
+}
+
 async function loadProjects(){
 
   const response =
@@ -43,6 +94,7 @@ async function loadProjects(){
 
   renderLatestUpdate();
   setupRandomButton();
+  setupRandomFab();
   setupProjectFilters();
 }
 
@@ -54,24 +106,210 @@ function renderLatestUpdate(){
     Latest transmission:
     <span>${latestProject.title}</span>
   `;
+
+  if(isMobile){
+
+    const count =
+    document.createElement("p");
+
+    count.className = "experiment-count";
+    count.textContent = `${allProjects.length} experiments`;
+
+    document
+    .getElementById("last-update")
+    .after(count);
+  }
 }
 
 function setupRandomButton(){
 
   document
   .getElementById("random-btn")
-  .addEventListener("click", () => {
+  .addEventListener("click", navigateRandomProject);
+}
 
-    const random =
-    allProjects[
-      Math.floor(
-        Math.random() * allProjects.length
-      )
-    ];
+function setupRandomFab(){
 
-    window.location.href =
-    `./projects/${random}/index.html`;
+  if(!isMobile) return;
+
+  const fab =
+  document.createElement("button");
+
+  fab.className = "random-fab";
+  fab.type = "button";
+  fab.textContent = "⟳";
+  fab.setAttribute("aria-label", "Random Artifact");
+
+  fab.addEventListener("click", navigateRandomProject);
+
+  document.body.appendChild(fab);
+}
+
+function setupChangelogModal(){
+
+  const changelogBtn =
+  document.getElementById("changelog-btn");
+
+  if(!changelogBtn) return;
+
+  let overlay = null;
+
+  changelogBtn.addEventListener("click", async (event) => {
+
+    event.preventDefault();
+
+    if(overlay){
+      openChangelogModal(overlay);
+      return;
+    }
+
+    const response =
+    await fetch("./changelog.txt");
+
+    const changelog =
+    await response.text();
+
+    overlay =
+    buildChangelogModal(changelog);
+
+    document.body.appendChild(overlay);
+
+    requestAnimationFrame(() => {
+      openChangelogModal(overlay);
+    });
   });
+}
+
+function buildChangelogModal(changelog){
+
+  const overlay =
+  document.createElement("div");
+
+  overlay.className = "changelog-modal-overlay";
+  overlay.setAttribute("role", "presentation");
+
+  const entries =
+  parseChangelog(changelog);
+
+  overlay.innerHTML = `
+    <section
+      class="changelog-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="changelog-title"
+    >
+      <div class="changelog-modal-header">
+        <h2
+          id="changelog-title"
+          class="changelog-modal-title"
+        >
+          Changelog
+        </h2>
+        <button
+          class="changelog-close"
+          type="button"
+          aria-label="Close changelog"
+        >
+          ×
+        </button>
+      </div>
+      <div class="changelog-entries">
+        ${entries
+          .map(entry => `
+            <article class="changelog-entry">
+              <time class="changelog-date">${entry.date}</time>
+              <p class="changelog-text">${entry.text}</p>
+            </article>
+          `)
+          .join("")
+        }
+      </div>
+    </section>
+  `;
+
+  overlay.addEventListener("click", (event) => {
+    if(event.target === overlay){
+      closeChangelogModal(overlay);
+    }
+  });
+
+  overlay
+  .querySelector(".changelog-close")
+  .addEventListener("click", () => {
+    closeChangelogModal(overlay);
+  });
+
+  return overlay;
+}
+
+function parseChangelog(changelog){
+
+  return changelog
+    .trim()
+    .split(/\n\s*\n/)
+    .map(entry => {
+
+      const lines =
+      entry
+        .split("\n")
+        .map(line => line.trim())
+        .filter(Boolean);
+
+      return {
+        date: escapeHTML(lines[0] || "Undated"),
+        text: escapeHTML(lines.slice(1).join(" ") || "No details")
+      };
+    });
+}
+
+function escapeHTML(value){
+
+  return value.replace(/[&<>"']/g, character => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;"
+  }[character]));
+}
+
+function openChangelogModal(overlay){
+
+  overlay.classList.add("visible");
+
+  document.addEventListener("keydown", handleChangelogEscape);
+}
+
+function closeChangelogModal(overlay){
+
+  overlay.classList.remove("visible");
+
+  document.removeEventListener("keydown", handleChangelogEscape);
+}
+
+function handleChangelogEscape(event){
+
+  if(event.key !== "Escape") return;
+
+  const overlay =
+  document.querySelector(".changelog-modal-overlay.visible");
+
+  if(overlay){
+    closeChangelogModal(overlay);
+  }
+}
+
+function navigateRandomProject(){
+
+  const random =
+  allProjects[
+    Math.floor(
+      Math.random() * allProjects.length
+    )
+  ];
+
+  window.location.href =
+  `./projects/${random}/index.html`;
 }
 
 function createCard(project, folder){
@@ -138,7 +376,9 @@ function createCard(project, folder){
           ? `<div class="disabled-btn">
                Desktop Only
              </div>`
-          : `<a
+          : isMobile
+            ? ``
+            : `<a
                class="open-btn"
                href="./projects/${folder}/index.html"
              >
@@ -153,6 +393,20 @@ function createCard(project, folder){
   `;
 
   addTilt(card);
+
+  if(isMobile && !unavailable){
+
+    const link =
+    document.createElement("a");
+
+    link.className = "card-link";
+    link.href = `./projects/${folder}/index.html`;
+
+    link.appendChild(card);
+    grid.appendChild(link);
+
+    return;
+  }
 
   grid.appendChild(card);
 }
@@ -245,6 +499,13 @@ function setupProjectFilters(){
         "filtered-out",
         !(matchesSearch && matchesTag)
       );
+
+      if(card.parentElement.classList.contains("card-link")){
+        card.parentElement.classList.toggle(
+          "filtered-out",
+          !(matchesSearch && matchesTag)
+        );
+      }
     });
   }
 }
@@ -375,4 +636,6 @@ function generateSVG(type, color){
   `;
 }
 
+injectStickyBar();
+setupChangelogModal();
 loadProjects();
