@@ -1,8 +1,20 @@
-2026.05.29
+2026.05.28
 Initial archive launch
 
-2026.05.29
+2026.05.28
 Added White Noise
 
 2026.05.29
 Implemented live archive system
+
+2026.05.29
+Updated White Noise to Baby Sounds Sleep experiment
+
+2026.05.29
+Added Race Cars experiment
+
+2026.05.29
+Fixed card layout overflow causing SVG decorations to break outer borders
+
+2026.05.29
+Replaced full-page changelog navigation with a responsive inline floating modal
