@@ -142,6 +142,8 @@ body::before{
   );
 
   transition:0.35s;
+
+  backdrop-filter:blur(10px);
 }
 
 .card:hover{
