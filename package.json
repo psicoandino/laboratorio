@@ -1,0 +1,23 @@
+{
+  "name": "laboratorio",
+  "version": "1.0.0",
+  "description": "PSICOANDINO LAB - Experimental HTML archive",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/psicoandino/laboratorio.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/psicoandino/laboratorio/issues"
+  },
+  "homepage": "https://github.com/psicoandino/laboratorio#readme",
+  "dependencies": {
+    "@vercel/analytics": "^2.0.1"
+  }
+}
