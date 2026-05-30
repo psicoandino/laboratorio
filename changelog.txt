@@ -18,3 +18,6 @@ Fixed card layout overflow causing SVG decorations to break outer borders
 
 2026.05.29
 Replaced full-page changelog navigation with a responsive inline floating modal
+
+2026.05.29
+Added Astransys expermiten
