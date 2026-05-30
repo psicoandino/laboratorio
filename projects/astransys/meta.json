@@ -1,0 +1,16 @@
+{
+  "title": "Astransys",
+  "description": "True astro positions",
+  "tags": [
+    "astronomy",
+    "astrology"
+  ],
+
+  "status": "new",
+  "updated": "2026-05-29",
+
+  "mobile": true,
+
+  "accent": "#D4C4A8",
+  "svg": "astros"
+}

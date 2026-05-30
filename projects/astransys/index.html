@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TRUE SPACES</title>
+  <script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root,[data-theme=light]{color-scheme:light;font-size:clamp(15px,3.8vw,18px);--mono:"Courier New",monospace;--serif:Georgia,serif;--c-bg:#f5f3ec;--c-bg-outer:#ebe9e1;--c-card:#fff;--c-ink:#1a1a1a;--c-mute:#888;--c-edge:#e8e4dc;--c-border:#111;--c-surface:#fafaf8;--c-surface-alt:#f5f3ec;--c-arc:#e8e4dc;--c-bar:#0d0d0d;--c-bar-muted:#666;--c-bar-faint:#444;--c-overlay:rgba(0,0,0,.65);--c-modal:#fff;--c-input-bg:#fafaf8;--c-input-border:#ddd;--c-focus:#111;--c-toast-bg:#111;--c-toast-fg:#fff;--c-approx-bg:#faf6e8;--c-approx-border:#e8d9a8;--c-approx-fg:#8a7340;--c-error-bg:#fff8f7;--c-error-border:#f5c6c2;--c-error-fg:#c0392b;--c-retro-bg:#fff0ee;--c-retro-border:#f5c6c2;--c-shadow:rgba(0,0,0,.1);--c-top-h:76px;--c-bot-h:66px;--live:#1d9e75;--custom:#3d5a8a;--cat-transpersonal:#7f77dd;--cat-social:#ba7517;--cat-personal:#1d9e75}
+[data-theme=dark]{color-scheme:dark;--c-bg:#0f0f10;--c-bg-outer:#080809;--c-card:#1a1a1c;--c-ink:#f0ede6;--c-mute:#9a9590;--c-edge:#2e2e32;--c-border:#e8e4dc;--c-surface:#222224;--c-surface-alt:#18181a;--c-arc:#3a3a40;--c-bar:#000;--c-bar-muted:#888;--c-bar-faint:#555;--c-overlay:rgba(0,0,0,.82);--c-modal:#1e1e21;--c-input-bg:#141416;--c-input-border:#3a3a40;--c-focus:#e8e4dc;--c-toast-bg:#e8e4dc;--c-toast-fg:#111;--c-approx-bg:#2a2818;--c-approx-border:#4a4428;--c-approx-fg:#c8b878;--c-error-bg:#2a1818;--c-error-border:#5a3030;--c-error-fg:#e88a80;--c-retro-bg:#2a1a1a;--c-retro-border:#5a3535;--c-shadow:rgba(0,0,0,.45);--live:#2bb88a;--custom:#5a7ab0}
+html{height:100%}
+body{background:var(--c-bg);font-family:var(--serif);color:var(--c-ink);min-height:100%;padding-top:calc(var(--c-top-h) + env(safe-area-inset-top,0px));padding-bottom:calc(var(--c-bot-h) + env(safe-area-inset-bottom,0px));transition:background .2s ease,color .2s ease}
+.card{background:var(--c-card);width:100%;max-width:560px;margin:0 auto;box-shadow:none;transition:background .2s ease}
+@media (min-width:560px){body{padding-left:1rem;padding-right:1rem;background:var(--c-bg-outer)}.card{border-radius:20px;box-shadow:0 4px 32px var(--c-shadow);margin-top:1rem;margin-bottom:1rem}}
+.sticky-top{position:fixed;top:0;left:0;right:0;z-index:200;background:var(--c-card);border-bottom:1.5px solid var(--c-border);padding-top:env(safe-area-inset-top,0px);box-shadow:0 2px 14px var(--c-shadow);transition:background .2s ease,border-color .2s ease}
+.top-inner{max-width:560px;margin:0 auto;display:grid;grid-template-columns:1fr auto;align-items:center;padding:.85rem 1.1rem .75rem;gap:.75rem}
+.top-label{font-size:.62rem;letter-spacing:.18em;color:var(--c-mute);font-family:var(--mono);margin-bottom:.25rem;text-transform:uppercase}
+.top-name{font-size:1.5rem;font-weight:700;color:var(--c-ink);line-height:1.05;font-family:var(--serif);margin:0;letter-spacing:.02em}
+.top-left p{margin:0}.top-context{font-size:.62rem;color:var(--c-mute);font-family:var(--mono);letter-spacing:.05em;margin-top:.28rem}.sym{font-family:var(--mono);line-height:1}
+.btn-date,.btn-mode{border-radius:10px;padding:.6rem .75rem;font-family:var(--mono);font-size:.65rem;letter-spacing:.08em;cursor:pointer;line-height:1.3;text-align:center;transition:background .2s,border-color .2s,color .2s,opacity .2s;white-space:nowrap;min-width:52px;min-height:46px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.15rem}
+.btn-date{background:var(--c-border);color:var(--c-card);border:none;padding:.6rem .9rem}.btn-mode{background:var(--c-surface-alt);color:var(--c-ink);border:1.5px solid var(--c-edge)}
+.btn-date .btn-icon,.btn-mode .btn-icon{font-size:1.05rem;display:block}.btn-mode.live-active{background:var(--live);color:#fff;border-color:var(--live)}.btn-date.date-active{background:var(--custom);color:#fff;border-color:var(--custom)}.btn-mode.spin .btn-icon{animation:spin-once .55s ease}
+@keyframes spin-once{from{transform:rotate(0)}to{transform:rotate(360deg)}}#diorama.diorama-pulse{animation:diorama-pulse .45s ease}@keyframes diorama-pulse{0%{opacity:1}40%{opacity:.55}100%{opacity:1}}
+.col-hdrs{display:grid;grid-template-columns:1fr 1.5fr 1fr;padding:.6rem 1.1rem .5rem;border-bottom:.5px solid var(--c-edge);background:var(--c-surface)}.ch{font-size:.62rem;color:var(--c-mute);letter-spacing:.07em;font-family:var(--mono)}.ch.c{text-align:center}.ch.r{text-align:right}
+.cat{display:flex;align-items:center;gap:.45rem;padding:.8rem 1.1rem .3rem;font-size:.6rem;letter-spacing:.14em;color:var(--c-mute);font-family:var(--mono);border-top:.5px solid var(--c-edge);margin-top:.15rem;text-transform:uppercase}.cat-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.row{display:grid;grid-template-columns:1fr 1.5fr 1fr;align-items:center;padding:.75rem 1.1rem .55rem}.sign{display:flex;flex-direction:column;gap:.12rem}.sign.r{align-items:flex-end;text-align:right}
+.s-sym{display:inline-flex;align-items:center;justify-content:center;min-width:2.35rem;padding:.2rem .35rem;font-size:2rem;font-weight:700;font-family:var(--mono);letter-spacing:.06em;line-height:1;color:var(--c-ink);opacity:.7;background:var(--c-surface-alt)}
+.s-name{display:inline-flex;align-items:center;justify-content:center;font-size:.8rem;color:var(--c-mute);font-family:var(--mono);letter-spacing:.04em}.sign.approx .s-sym{color:var(--c-approx-fg);border-color:var(--c-approx-border);background:var(--c-approx-bg);font-style:normal}.sign.approx .s-name{color:var(--c-approx-fg);font-style:italic;opacity:.85}.sign.approx .s-name:before{content:"~ ";color:var(--c-approx-fg)}
+.planet{display:flex;flex-direction:column;align-items:center;gap:.12rem}.p-sym{font-size:2rem;line-height:1.05;color:var(--c-ink)}.p-name{font-size:.78rem;font-weight:700;color:var(--c-ink);letter-spacing:.03em}.p-deg{font-size:.65rem;color:var(--c-mute);font-family:var(--mono)}
+.prog-wrap{width:3.5rem;height:4px;background:var(--c-edge);border-radius:2px;margin-top:.35rem;overflow:hidden}.prog{height:100%;border-radius:2px;transition:width .35s ease}.arc{display:block;width:100%;height:11px;overflow:visible}.arc path{stroke:var(--c-arc)}
+.msg{padding:2.25rem 1.1rem;text-align:center;font-size:.78rem;color:var(--c-mute);font-family:var(--mono);letter-spacing:.06em}
+.sticky-bar{position:fixed;bottom:0;left:0;right:0;z-index:100;background:var(--c-bar);padding-bottom:env(safe-area-inset-bottom,0px)}.bar-inner{max-width:560px;margin:0 auto;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:.7rem 1.1rem .75rem}.bar-earth{font-size:.68rem;letter-spacing:.16em;font-family:var(--mono);color:#fff;display:flex;align-items:center;gap:.35rem}.bar-time{font-size:1.45rem;letter-spacing:.08em;font-family:var(--mono);color:#fff;font-weight:300;text-align:center;font-variant-numeric:tabular-nums}.bar-time--placeholder{opacity:.35}.bar-date{font-size:.6rem;color:var(--c-bar-muted);font-family:var(--mono);letter-spacing:.04em;text-align:right;line-height:1.6}.bar-tz{font-size:.54rem;color:var(--c-bar-faint);font-family:var(--mono);letter-spacing:.04em;text-align:right}.bar-dot{width:8px;height:8px;border-radius:50%;background:var(--live);flex-shrink:0;animation:pulse 2s infinite}@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.modal-overlay{position:fixed;inset:0;background:var(--c-overlay);display:none;justify-content:center;align-items:flex-end;z-index:300}.modal-overlay.open{display:flex}.modal-box{background:var(--c-modal);border-radius:20px 20px 0 0;padding:1.5rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom,0px));width:100%;max-width:560px;box-shadow:0 -4px 32px var(--c-shadow);color:var(--c-ink);transition:background .2s ease}.modal-box:before{content:"";display:block;width:2.5rem;height:4px;background:var(--c-edge);border-radius:2px;margin:0 auto .9rem}.modal-title{font-size:.92rem;font-weight:700;letter-spacing:.12em;font-family:var(--mono);margin-bottom:.35rem;color:var(--c-ink)}.modal-sub{font-size:.64rem;color:var(--c-mute);font-family:var(--mono);letter-spacing:.04em;margin-bottom:1.25rem;line-height:1.65}
+.field{display:flex;flex-direction:column;gap:.35rem;margin-bottom:.9rem}.field label{font-size:.62rem;letter-spacing:.1em;color:var(--c-mute);font-family:var(--mono)}.field input{border:1.5px solid var(--c-input-border);border-radius:10px;padding:.8rem .95rem;font-family:var(--mono);font-size:1rem;color:var(--c-ink);outline:none;transition:border .15s;background:var(--c-input-bg);min-height:48px}.field input:focus{border-color:var(--c-focus)}.field small{font-size:.58rem;color:var(--c-approx-fg);font-family:var(--mono);letter-spacing:.04em;line-height:1.5}
+.modal-actions{display:flex;gap:.6rem;margin-top:1.25rem}.modal-actions--dual .btn-cancel{flex:1}.modal-actions--dual .btn-go{flex:2}.btn-cancel{flex:1;background:var(--c-surface-alt);color:var(--c-ink);border:1px solid var(--c-edge);border-radius:10px;padding:.8rem;font-family:var(--mono);font-size:.65rem;letter-spacing:.07em;cursor:pointer;min-height:48px}.btn-live{background:var(--live);color:#fff;border:none;border-radius:10px;padding:.8rem .9rem;font-family:var(--mono);font-size:.65rem;letter-spacing:.06em;cursor:pointer;min-height:48px}.btn-go{flex:2;background:var(--c-border);color:var(--c-card);border:none;border-radius:10px;padding:.8rem;font-family:var(--mono);font-size:.65rem;letter-spacing:.07em;cursor:pointer;min-height:48px}[data-theme=dark] .btn-go{color:#111}
+.app-footer{border-top:.5px solid var(--c-edge);padding:.75rem 1.1rem 1rem;text-align:center;font-size:.56rem;color:var(--c-mute);font-family:var(--mono);letter-spacing:.05em;line-height:1.8}.p-sym.cat-transpersonal{color:var(--cat-transpersonal)}.p-sym.cat-social{color:var(--cat-social)}.p-sym.cat-personal{color:var(--cat-personal)}
+.retro-badge{display:inline-block;font-size:.52rem;font-family:var(--mono);color:var(--c-error-fg);background:var(--c-retro-bg);border:1px solid var(--c-retro-border);border-radius:4px;padding:0 .3rem;letter-spacing:.04em;margin-top:.15rem;line-height:1.5}.row.is-retro .p-name{color:var(--c-error-fg)}.row.is-retro .p-sym{opacity:.88}
+.btn-share{background:var(--c-surface-alt);color:var(--c-ink);border:1.5px solid var(--c-edge);border-radius:10px;padding:.6rem .8rem;font-family:var(--mono);font-size:.65rem;letter-spacing:.06em;cursor:pointer;line-height:1.3;text-align:center;transition:all .2s;min-width:48px;min-height:46px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.15rem;white-space:nowrap}.btn-share:hover{background:var(--c-border);color:var(--c-card);border-color:var(--c-border)}[data-theme=dark] .btn-share:hover{color:#111}.btn-share .btn-icon{font-size:1.05rem;display:block}.btn-share.loading{opacity:.5;pointer-events:none}
+.toast{position:fixed;bottom:calc(var(--c-bot-h) + env(safe-area-inset-bottom,0px) + .75rem);left:50%;transform:translateX(-50%) translateY(20px);background:var(--c-toast-bg);color:var(--c-toast-fg);font-family:var(--mono);font-size:.65rem;letter-spacing:.07em;padding:.65rem 1.25rem;border-radius:20px;opacity:0;pointer-events:none;transition:all .3s ease;z-index:500;white-space:nowrap}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}body.modal-open{overflow:hidden}
+button:focus-visible,input:focus-visible{outline:2px solid var(--c-focus);outline-offset:2px}button:active:not(:disabled){transform:scale(.98)}
+.approx-banner{margin:.55rem 1.1rem 0;padding:.6rem .85rem;background:var(--c-approx-bg);border:1px solid var(--c-approx-border);border-radius:10px;font-family:var(--mono);font-size:.6rem;letter-spacing:.04em;color:var(--c-approx-fg);line-height:1.55;text-align:center}
+.error-panel{margin:1.5rem 1.1rem;padding:1.1rem;border:1px solid var(--c-error-border);border-radius:12px;background:var(--c-error-bg);text-align:center}.error-panel .error-title{font-family:var(--mono);font-size:.65rem;letter-spacing:.1em;color:var(--c-error-fg);margin-bottom:.5rem}.error-panel .error-msg{font-size:.74rem;color:var(--c-mute);margin-bottom:.75rem;line-height:1.5}.btn-retry{background:var(--c-border);color:var(--c-card);border:none;border-radius:8px;padding:.55rem 1rem;font-family:var(--mono);font-size:.62rem;letter-spacing:.06em;cursor:pointer;min-height:44px}[data-theme=dark] .btn-retry{color:#111}.field-error{font-size:.58rem;color:var(--c-error-fg);font-family:var(--mono);letter-spacing:.04em;margin-top:.25rem}
+.top-actions{display:flex;gap:.45rem;align-items:center;flex-shrink:0}.btn-icon-only{background:var(--c-surface-alt);border:1px solid var(--c-edge);border-radius:10px;width:46px;height:46px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.15rem;font-family:var(--mono);color:var(--c-ink);transition:background .15s,border-color .15s}.btn-icon-only:hover{background:var(--c-edge)}.btn-icon-only:disabled{opacity:.4;cursor:not-allowed}.btn-theme{font-size:1rem;letter-spacing:0}.app-footer details{cursor:pointer}.app-footer summary{list-style:none;color:var(--c-mute)}.app-footer summary::-webkit-details-marker{display:none}.app-footer details[open] summary{margin-bottom:.35rem}
+@media (prefers-reduced-motion:reduce){.bar-dot{animation:none}.toast,button,.btn-date,.btn-share,.prog{transition:none}}
+  </style>
+</head>
+<body>
+  <header class="sticky-top">
+    <div class="top-inner">
+      <div class="top-left">
+        <p class="top-label">POSICIONES REALES · IAU · GEOCÉNTRICO</p>
+        <h1 class="top-name">TRUE SPACES</h1>
+        <p class="top-context" aria-live="polite">◎ tiempo real · ahora</p>
+      </div>
+      <div class="top-actions">
+        <button type="button" class="btn-icon-only btn-theme" aria-label="Activar modo oscuro" title="Activar modo oscuro"><span class="sym" aria-hidden>●</span></button>
+        <button type="button" class="btn-mode live-active" aria-label="Actualizar posiciones en tiempo real" title="Actualizar ahora"><span class="btn-icon sym" aria-hidden>◎</span>LIVE</button>
+        <button type="button" class="btn-date" aria-label="Elegir fecha y hora" aria-expanded="false"><span class="btn-icon sym" aria-hidden>◷</span>FECHA</button>
+        <button type="button" class="btn-share" aria-label="Guardar imagen de las posiciones" aria-busy="false"><span class="btn-icon sym" aria-hidden>↓</span>IMG</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="toast" role="status" aria-live="polite"></div>
+
+  <main class="card">
+    <div class="col-hdrs" aria-hidden>
+      <span class="ch">signo actual</span>
+      <span class="ch c">planeta · grado</span>
+      <span class="ch r">→ próximo signo</span>
+    </div>
+
+    <div id="diorama" aria-label="Posiciones planetarias">
+      <p class="msg"><span class="sym">↻</span> calculando posiciones…</p>
+    </div>
+
+    <footer class="app-footer">
+      <details>
+        <summary>Acerca del cálculo</summary>
+        Barra de progreso = grado dentro del signo (0° → límite IAU).<br>
+        Motor: Astronomy Engine (Don Cross) · límites IAU oficiales.
+      </details>
+    </footer>
+  </main>
+
+  <footer class="sticky-bar" aria-label="Reloj local">
+    <div class="bar-inner">
+      <div class="bar-earth"><span class="bar-dot" aria-hidden></span><span class="sym" aria-hidden>⊕</span> EARTH</div>
+      <time class="bar-time" datetime="">00:00:00</time>
+      <div>
+        <div class="bar-date">— — —</div>
+        <div class="bar-tz">UTC —</div>
+      </div>
+    </div>
+  </footer>
+
+  <div class="modal-overlay" role="presentation" aria-hidden="true">
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <h2 id="modal-title" class="modal-title">CALCULAR POSICIONES</h2>
+      <p class="modal-sub">Elige una fecha. La hora es opcional; sin ella, los cuerpos rápidos se marcan como aproximados.</p>
+      <div class="field">
+        <label for="input-date">FECHA</label>
+        <input id="input-date" type="date" aria-invalid="false">
+        <p id="date-error" class="field-error" role="alert" hidden></p>
+      </div>
+      <div class="field">
+        <label for="input-time">HORA (opcional)</label>
+        <input id="input-time" type="time">
+        <small>Luna, Mercurio y Venus dependen de la hora exacta.</small>
+      </div>
+      <div class="modal-actions modal-actions--dual">
+        <button type="button" class="btn-cancel">CANCELAR</button>
+        <button type="button" class="btn-go">CALCULAR →</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+(() => {
+  const UI = {refresh:"↻",live:"◎",date:"◷",download:"↓",loading:"…",earth:"⊕",retro:"℞",arrow:"→",themeLight:"○",themeDark:"●",ok:"+",fail:"×"};
+  const IAU = [
+    {name:"Aries",short:"Aries",sym:"♈️",start:29,end:53.5},{name:"Taurus",short:"Taurus",sym:"♉️",start:53.5,end:90.2},
+    {name:"Gemini",short:"Gemini",sym:"♊️",start:90.2,end:118.1},{name:"Cancer",short:"Cancer",sym:"♋️",start:118.1,end:138.2},
+    {name:"Leo",short:"Leo",sym:"♌️",start:138.2,end:173.9},{name:"Virgo",short:"Virgo",sym:"♍️",start:173.9,end:218},
+    {name:"Libra",short:"Libra",sym:"♎️",start:218,end:241},{name:"Scorpius",short:"Scorpius",sym:"♏️",start:241,end:247.7},
+    {name:"Ophiuchus",short:"Ophiuch.",sym:"⛎",start:247.7,end:266.3},{name:"Sagittarius",short:"Sagitt.",sym:"♐️",start:266.3,end:299.7},
+    {name:"Capricornus",short:"Capric.",sym:"♑️",start:299.7,end:327.6},{name:"Aquarius",short:"Aquarius",sym:"♒️",start:327.6,end:348.7},
+    {name:"Pisces",short:"Pisces",sym:"♓️",start:348.7,end:389}
+  ];
+  const PLANETS = [
+    {key:"Pluto",name:"Pluto",sym:"♇",cat:"transpersonal"},{key:"Neptune",name:"Neptune",sym:"♆",cat:"transpersonal"},
+    {key:"Uranus",name:"Uranus",sym:"♅",cat:"transpersonal"},{key:"Saturn",name:"Saturn",sym:"♄",cat:"social"},
+    {key:"Jupiter",name:"Jupiter",sym:"♃",cat:"social"},{key:"Mars",name:"Mars",sym:"♂",cat:"personal"},
+    {key:"Venus",name:"Venus",sym:"♀",cat:"personal"},{key:"Mercury",name:"Mercury",sym:"☿",cat:"personal"},
+    {key:"Sun",name:"Sun",sym:"☉",cat:"personal"},{key:"Moon",name:"Moon",sym:"☽",cat:"personal"}
+  ];
+  const FAST_BODIES = new Set(["Moon","Mercury","Venus"]);
+  const CAT_META = {transpersonal:{label:"TRANSPERSONAL",color:"#7F77DD"},social:{label:"SOCIAL",color:"#BA7517"},personal:{label:"PERSONAL",color:"#1D9E75"}};
+
+  const $ = s => document.querySelector(s);
+  const el = {
+    html: document.documentElement, body: document.body, top:$(".sticky-top"), bot:$(".sticky-bar"), card:$(".card"), diorama:$("#diorama"),
+    context:$(".top-context"), toast:$(".toast"), theme:$(".btn-theme"), live:$(".btn-mode"), date:$(".btn-date"), share:$(".btn-share"),
+    modal:$(".modal-overlay"), inputDate:$("#input-date"), inputTime:$("#input-time"), dateError:$("#date-error"),
+    cancel:$(".btn-cancel"), go:$(".btn-go"), barTime:$(".bar-time"), barDate:$(".bar-date"), barTz:$(".bar-tz")
+  };
+
+  let mounted = false, mode = "live", targetDate = null, isApproximate = false, positions = null, error = null, theme = "light", shareLoading = false;
+  let toastTimer = null;
+
+  const pad = n => String(n).padStart(2, "0");
+  const esc = v => String(v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const monthsShort = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+
+  function getStoredTheme() {
+    try {
+      const stored = localStorage.getItem("true-spaces-theme");
+      if (stored === "light" || stored === "dark") return stored;
+    } catch {}
+    return matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  }
+  function applyTheme(next) {
+    theme = next;
+    el.html.setAttribute("data-theme", next);
+    try { localStorage.setItem("true-spaces-theme", next); } catch {}
+    el.theme.setAttribute("aria-label", next === "light" ? "Activar modo oscuro" : "Activar modo claro");
+    el.theme.title = next === "light" ? "Activar modo oscuro" : "Activar modo claro";
+    el.theme.querySelector(".sym").textContent = next === "light" ? UI.themeDark : UI.themeLight;
+  }
+  function getConstellation(lon) {
+    if (lon >= 348.7 || lon < 29) return IAU[12];
+    return IAU.find(b => lon >= b.start && lon < b.end) || IAU[12];
+  }
+  function getNextConstellation(c) {
+    const i = IAU.findIndex(b => b.name === c.name);
+    return IAU[(i + 1) % IAU.length];
+  }
+  function getProgress(lon, c) {
+    const deg = c.name === "Pisces" ? (lon >= 348.7 ? lon - 348.7 : lon + 11.3) : lon - c.start;
+    const span = c.name === "Pisces" ? 40.3 : c.end - c.start;
+    return Math.min(100, Math.max(0, (deg / span) * 100));
+  }
+  function astronomyBodyMap() {
+    if (!window.Astronomy) throw new Error("Astronomy Engine no está disponible.");
+    const B = Astronomy.Body;
+    return {Sun:B.Sun,Moon:B.Moon,Mercury:B.Mercury,Venus:B.Venus,Mars:B.Mars,Jupiter:B.Jupiter,Saturn:B.Saturn,Uranus:B.Uranus,Neptune:B.Neptune,Pluto:B.Pluto};
+  }
+  function getLongitude(key, date) {
+    const body = astronomyBodyMap()[key];
+    if (!body) throw new Error("Unknown body: " + key);
+    const vec = Astronomy.GeoVector(body, Astronomy.MakeTime(date), true);
+    let lon = Astronomy.Ecliptic(vec).elon % 360;
+    return lon < 0 ? lon + 360 : lon;
+  }
+  function isRetrograde(key, date) {
+    if (key === "Sun" || key === "Moon") return false;
+    try {
+      let delta = getLongitude(key, date) - getLongitude(key, new Date(date.getTime() - 86400000));
+      if (delta > 180) delta -= 360;
+      if (delta < -180) delta += 360;
+      return delta < 0;
+    } catch { return false; }
+  }
+  function calcPositions(date) {
+    astronomyBodyMap();
+    return PLANETS.map(p => {
+      try {
+        const lon = getLongitude(p.key, date);
+        const c = getConstellation(lon);
+        const localDeg = c.name === "Pisces" ? (lon >= 348.7 ? lon - 348.7 : lon + 11.3) : lon - c.start;
+        return {...p,constellation:c,nextConst:getNextConstellation(c),degree:localDeg.toFixed(1),pct:getProgress(lon,c),retro:isRetrograde(p.key,date)};
+      } catch (err) {
+        const c = getConstellation(0);
+        return {...p,constellation:c,nextConst:getNextConstellation(c),degree:"0",pct:0,retro:false,error:err instanceof Error ? err.message : String(err)};
+      }
+    });
+  }
+  function arcSVG() {
+    return '<svg class="arc" viewBox="0 0 380 11" aria-hidden><path d="M0,10 Q190,1 380,10" stroke-width="0.7" fill="none"></path></svg>';
+  }
+  function planetRow(p, meta, ac, approx, showArc) {
+    const degreeLabel = approx ? `~${p.degree}°` : `${p.degree}°`;
+    const aria = `${p.name}, ${p.constellation.name} ${degreeLabel}${p.retro ? ", retrógrado" : ""}, próximo signo ${p.nextConst.name}`;
+    return `<div class="row${p.retro ? " is-retro" : ""}" aria-label="${esc(aria)}">
+      <div class="sign${ac}"><span class="s-sym" aria-hidden>${p.constellation.sym}</span><span class="s-name">${esc(p.constellation.short)}</span></div>
+      <div class="planet"><span class="p-sym cat-${p.cat}" aria-hidden>${p.sym}</span><span class="p-name">${esc(p.name)}</span>${p.retro ? `<span class="retro-badge">${UI.retro} retrógrado</span>` : ""}<span class="p-deg">${degreeLabel}</span><div class="prog-wrap" role="presentation"><div class="prog" style="width:${p.pct.toFixed(0)}%;background:${meta.color}"></div></div></div>
+      <div class="sign r${ac}"><span class="s-sym" aria-hidden>${p.nextConst.sym}</span><span class="s-name">${esc(p.nextConst.short)}</span></div>
+    </div>${showArc ? arcSVG() : ""}`;
+  }
+  function setToast(msg, duration = 2800) {
+    clearTimeout(toastTimer);
+    el.toast.textContent = msg;
+    el.toast.classList.toggle("show", !!msg);
+    if (msg) toastTimer = setTimeout(() => setToast(""), duration);
+  }
+  function pulseDiorama() {
+    el.diorama.classList.remove("diorama-pulse");
+    void el.diorama.offsetWidth;
+    el.diorama.classList.add("diorama-pulse");
+    setTimeout(() => el.diorama.classList.remove("diorama-pulse"), 500);
+  }
+  function render() {
+    el.context.textContent = mode === "live" ? `${UI.live} tiempo real · ahora` : el.context.textContent;
+    el.live.disabled = !mounted || shareLoading;
+    el.date.disabled = !mounted;
+    el.share.disabled = shareLoading || !positions || !mounted;
+    el.live.className = `btn-mode${mode === "live" ? " live-active" : ""}${el.live.classList.contains("spin") ? " spin" : ""}`;
+    el.date.className = `btn-date${mode === "custom" ? " date-active" : ""}`;
+    el.share.className = `btn-share${shareLoading ? " loading" : ""}`;
+    el.share.setAttribute("aria-busy", String(shareLoading));
+    el.share.querySelector(".btn-icon").textContent = shareLoading ? UI.loading : UI.download;
+    if (error) {
+      el.diorama.innerHTML = `<div class="error-panel" role="alert"><p class="error-title">NO SE PUDO CALCULAR</p><p class="error-msg">${esc(error)}</p><button type="button" class="btn-retry">REINTENTAR</button></div>`;
+      $(".btn-retry").addEventListener("click", refresh);
+      return;
+    }
+    if (!positions) {
+      el.diorama.innerHTML = `<p class="msg"><span class="sym">${UI.refresh}</span> calculando posiciones…</p>`;
+      return;
+    }
+    let html = isApproximate ? '<p class="approx-banner" role="note">Sin hora: Luna, Mercurio y Venus = posición aproximada (mediodía UTC).</p>' : "";
+    let lastCat = null;
+    const visible = positions.filter(p => !p.error);
+    visible.forEach((p, i) => {
+      const meta = CAT_META[p.cat];
+      const approx = isApproximate && FAST_BODIES.has(p.name);
+      if (p.cat !== lastCat) {
+        html += `<div class="cat" aria-hidden><span class="cat-dot" style="background:${meta.color}"></span>${meta.label}</div>`;
+        lastCat = p.cat;
+      }
+      html += planetRow(p, meta, approx ? " approx" : "", approx, i < visible.length - 1);
+    });
+    el.diorama.innerHTML = html;
+  }
+  function refresh() {
+    const date = mode === "live" ? new Date() : targetDate;
+    if (!date) return;
+    try {
+      positions = calcPositions(date);
+      error = null;
+    } catch (err) {
+      error = err instanceof Error ? err.message : String(err);
+      positions = null;
+    }
+    render();
+  }
+  function tickClock() {
+    const now = new Date();
+    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    const off = -now.getTimezoneOffset();
+    const tz = `${off >= 0 ? "+" : "-"}${pad(Math.floor(Math.abs(off) / 60))}:${pad(Math.abs(off) % 60)}`;
+    el.barTime.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+    el.barTime.dateTime = now.toISOString();
+    el.barDate.textContent = `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+    el.barTz.textContent = `UTC ${tz}`;
+  }
+  function openModal() {
+    el.dateError.hidden = true;
+    el.dateError.textContent = "";
+    el.inputDate.setAttribute("aria-invalid", "false");
+    const d = mode === "custom" && targetDate ? targetDate : new Date();
+    el.inputDate.value = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    el.inputTime.value = mode === "custom" && targetDate && (d.getHours() || d.getMinutes()) ? `${pad(d.getHours())}:${pad(d.getMinutes())}` : "";
+    el.modal.classList.add("open");
+    el.modal.setAttribute("aria-hidden", "false");
+    el.date.setAttribute("aria-expanded", "true");
+    document.body.classList.add("modal-open");
+    setTimeout(() => el.inputDate.focus(), 50);
+  }
+  function closeModal() {
+    el.modal.classList.remove("open");
+    el.modal.setAttribute("aria-hidden", "true");
+    el.date.setAttribute("aria-expanded", "false");
+    document.body.classList.remove("modal-open");
+  }
+  function applyDate() {
+    if (!el.inputDate.value) {
+      el.dateError.textContent = "Selecciona una fecha para continuar.";
+      el.dateError.hidden = false;
+      el.inputDate.setAttribute("aria-invalid", "true");
+      el.inputDate.focus();
+      return;
+    }
+    const [y, mo, d] = el.inputDate.value.split("-").map(Number);
+    let next;
+    if (el.inputTime.value) {
+      const [h, mi] = el.inputTime.value.split(":").map(Number);
+      next = new Date(y, mo - 1, d, h, mi, 0);
+      isApproximate = false;
+    } else {
+      next = new Date(Date.UTC(y, mo - 1, d, 12, 0, 0));
+      isApproximate = true;
+    }
+    mode = "custom";
+    targetDate = next;
+    el.context.textContent = `${UI.date} ${d} ${monthsShort[mo - 1]} ${y}${el.inputTime.value ? ` · ${el.inputTime.value}` : " · aprox."}`;
+    closeModal();
+    refresh();
+    pulseDiorama();
+    setToast(`${UI.ok} posiciones calculadas`);
+  }
+  function resetToLive() {
+    mode = "live";
+    targetDate = null;
+    isApproximate = false;
+    el.context.textContent = `${UI.live} tiempo real · ahora`;
+    closeModal();
+    refresh();
+    pulseDiorama();
+  }
+  function handleLive() {
+    if (mode === "custom") {
+      resetToLive();
+      setToast(`${UI.live} en vivo`);
+      return;
+    }
+    refresh();
+    tickClock();
+    pulseDiorama();
+    el.live.classList.add("spin");
+    setTimeout(() => { el.live.classList.remove("spin"); render(); }, 600);
+    setToast(`${UI.ok} actualizado · ahora`);
+  }
+  function fallbackDownload(canvas, fname) {
+    const link = document.createElement("a");
+    link.download = fname;
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+    setToast(`${UI.ok} imagen descargada`);
+  }
+  async function captureAndShare() {
+    if (!positions || shareLoading) return;
+    shareLoading = true;
+    render();
+    const prevTop = el.top.style.display, prevBot = el.bot.style.display, prevPad = document.body.style.paddingTop;
+    el.top.style.display = "none";
+    el.bot.style.display = "none";
+    document.body.style.paddingTop = "0";
+    try {
+      const canvas = await html2canvas(el.card, {backgroundColor:theme === "dark" ? "#1a1a1c" : "#ffffff",scale:3,useCORS:true,logging:false});
+      const now = new Date();
+      const fname = `true-spaces-${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}.png`;
+      canvas.toBlob(async blob => {
+        if (blob && navigator.share && navigator.canShare) {
+          const file = new File([blob], fname, {type:"image/png"});
+          if (navigator.canShare({files:[file]})) {
+            try {
+              await navigator.share({title:"True Spaces · Posiciones Planetarias",files:[file]});
+              setToast(`${UI.ok} compartido`);
+              return;
+            } catch {}
+          }
+        }
+        fallbackDownload(canvas, fname);
+      }, "image/png");
+    } catch {
+      setToast(`${UI.fail} error al generar imagen`);
+    } finally {
+      el.top.style.display = prevTop || "";
+      el.bot.style.display = prevBot || "";
+      document.body.style.paddingTop = prevPad;
+      shareLoading = false;
+      render();
+    }
+  }
+
+  el.theme.addEventListener("click", () => applyTheme(theme === "light" ? "dark" : "light"));
+  el.live.addEventListener("click", handleLive);
+  el.date.addEventListener("click", openModal);
+  el.share.addEventListener("click", captureAndShare);
+  el.cancel.addEventListener("click", closeModal);
+  el.go.addEventListener("click", applyDate);
+  el.inputDate.addEventListener("input", () => {
+    el.dateError.hidden = true;
+    el.inputDate.setAttribute("aria-invalid", "false");
+  });
+  el.modal.addEventListener("click", e => { if (e.target === el.modal) closeModal(); });
+  window.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); });
+
+  applyTheme(getStoredTheme());
+  mounted = true;
+  tickClock();
+  refresh();
+  setInterval(tickClock, 1000);
+  setInterval(() => { if (mode === "live") refresh(); }, 300000);
+})();
+  </script>
+</body>
+</html>
