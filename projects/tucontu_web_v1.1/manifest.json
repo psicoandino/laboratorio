@@ -1,0 +1,13 @@
+{
+  "artifact": "TUCONTU Web v1.1",
+  "core": "tucontu.core/1.0",
+  "data_schema": "tucontu.data/1.0",
+  "changes": [
+    "preserve_scroll_on_local_actions",
+    "sticky_header",
+    "rich_product_cards",
+    "product_detail",
+    "localized_edit_entry_points",
+    "empty_state_instead_of_empty_select"
+  ]
+}
