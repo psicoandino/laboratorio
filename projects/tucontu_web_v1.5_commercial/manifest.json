@@ -1,0 +1,23 @@
+{
+  "artifact": "TUCONTU Web v1.5 Commercial Interactive",
+  "core": "tucontu.core/1.3",
+  "data_schema": "tucontu.data/1.3",
+  "new_engine_contracts": [
+    "margin_for_price",
+    "profit_for_price",
+    "commercial_rounding",
+    "suggested_price",
+    "default_target_margin",
+    "price_rounding_setting",
+    "migration_preserves_custom_length_rules"
+  ],
+  "new_ui_contracts": [
+    "piece_card_bidirectional_price_margin_simulator",
+    "simulation_requires_explicit_confirmation",
+    "persistent_value_bar_reacts_to_simulation",
+    "suggested_price_only_when_ready_cost_complete",
+    "incomplete_cost_uses_simulation_language",
+    "static_margin_reference_table_removed",
+    "zero_scroll_preserved"
+  ]
+}

@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0d2240">
+  <title>TUCONTU · Web v1.5</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app-shell">
+  <header class="topbar">
+    <button id="brandBtn" class="brand">T U C O N T U</button>
+    <div class="top-actions">
+      <button id="newPieceTop" class="top-primary">+ Nueva</button>
+      <button id="materialsBtn" class="top-ghost mobile-only">Materiales</button>
+      <button id="settingsBtn" class="top-ghost">Ajustes</button>
+      <button id="backupBtn" class="top-ghost">Respaldo</button>
+      <input id="importFile" type="file" accept="application/json" hidden>
+    </div>
+  </header>
+
+  <div class="workspace">
+    <main id="main" class="main-panel"></main>
+    <aside id="library" class="library-panel"></aside>
+  </div>
+</div>
+
+<div id="modalRoot"></div>
+
+<script src="core.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

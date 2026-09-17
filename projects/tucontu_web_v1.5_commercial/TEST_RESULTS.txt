@@ -1,0 +1,76 @@
+PASS  schema 1.3
+PASS  core 1.3
+PASS  1 suelto
+PASS  2 espiral
+PASS  3 trenza
+PASS  ratio suelto 30/30
+PASS  ratio espiral 29/30
+PASS  ratio trenza 27/30
+PASS  trenza 8 usa promedio trenza
+PASS  30 espiral -> 29
+PASS  30 trenza -> 27
+PASS  60 espiral -> 58
+PASS  regla espiral editable
+PASS  grosor desconocido no rompe
+PASS  medido vence promedio
+PASS  sin empaque es válido
+PASS  costo listo = fabricación sin empaque
+PASS  empaque suma componentes
+PASS  empaque separado de fabricación
+PASS  ganancia usa listo para vender
+PASS  tiempo empaque se costea
+PASS  empaque total incluye trabajo
+PASS  editar empaque no cambia histórico
+PASS  precio actual del empaque sí cambia recálculo
+PASS  plantilla aplica items
+PASS  plantilla aplica tiempo
+PASS  migra 1.1 -> 1.3
+PASS  migración agrega catálogo empaque
+PASS  migración agrega empaque vacío
+PASS  migración adopta 29/30 y 27/30
+PASS  agrupación concreta válida
+PASS  duplicado inválido
+PASS  compra deriva unitario
+PASS  margen 50%
+PASS  margen desde precio
+PASS  ganancia desde precio
+PASS  redondeo comercial a 100
+PASS  sugerencia usa margen + redondeo
+PASS  margen habitual default 50%
+PASS  redondeo default 100
+PASS  migra 1.2 -> 1.3
+PASS  migración conserva regla de largo personalizada
+PASS  migración agrega margen habitual
+PASS  migración agrega redondeo
+
+Resultado Core v1.3: 44 PASS · 0 FAIL
+
+PASS  Core is v1.3
+PASS  data schema is 1.3
+PASS  price card simulator exists
+PASS  margin slider exists
+PASS  price slider exists
+PASS  simulation is explicit before save
+PASS  cancel simulation exists
+PASS  suggested price exists in cards
+PASS  suggestion requires complete cost
+PASS  incomplete cost uses simulation language
+PASS  value bar can render simulation
+PASS  archive has persistent value bar
+PASS  margin setting exists
+PASS  rounding setting exists
+PASS  static 40/50/60/70 reference table removed
+PASS  obsolete price reference modal removed
+PASS  detail points to interactive sale editor
+PASS  sale pane is bidirectional
+PASS  Core marginForPrice used
+PASS  Core profitForPrice used
+PASS  Core suggestedPrice used
+PASS  zero scroll body preserved
+PASS  100dvh shell preserved
+PASS  editable material library preserved
+PASS  packaging preserved
+PASS  historical snapshots preserved
+PASS  index labels v1.5
+
+Resultado UI v1.5: 27 PASS · 0 FAIL

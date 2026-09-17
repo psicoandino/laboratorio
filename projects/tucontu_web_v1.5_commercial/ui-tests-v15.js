@@ -1,0 +1,37 @@
+
+const fs=require("fs");
+const app=fs.readFileSync("./app.js","utf8");
+const css=fs.readFileSync("./styles.css","utf8");
+const core=fs.readFileSync("./core.js","utf8");
+const html=fs.readFileSync("./index.html","utf8");
+let p=0,f=0;
+function t(n,c){if(c){console.log("PASS  "+n);p++;}else{console.error("FAIL  "+n);f++;}}
+t("Core is v1.3",core.includes('tucontu.core/1.3'));
+t("data schema is 1.3",core.includes('tucontu.data/1.3'));
+t("price card simulator exists",app.includes("beginCommercialSimulation")&&app.includes("simPriceRange"));
+t("margin slider exists",app.includes("simMarginRange"));
+t("price slider exists",app.includes("simPriceRange"));
+t("simulation is explicit before save",app.includes("Usar este precio")&&app.includes("commercialSim"));
+t("cancel simulation exists",app.includes("cancelSim"));
+t("suggested price exists in cards",app.includes("Precio sugerido")&&app.includes("priceSuggestion"));
+t("suggestion requires complete cost",app.includes("if(!c.complete||c.value===null||c.value<=0)return null"));
+t("incomplete cost uses simulation language",app.includes("Simulación sobre costo conocido"));
+t("value bar can render simulation",app.includes('priceLabel:"Precio · prueba"')&&css.includes(".valuebar.simulated"));
+t("archive has persistent value bar",app.includes('id="archiveValueHost"')&&css.includes(".archive-screen"));
+t("margin setting exists",app.includes("defaultMargin")&&app.includes("defaultTargetMargin"));
+t("rounding setting exists",app.includes("priceRounding")&&app.includes("Redondear sugerencias a"));
+t("static 40/50/60/70 reference table removed",!app.includes("[.40,.50,.60,.70]"));
+t("obsolete price reference modal removed",!app.includes("openPriceReferences"));
+t("detail points to interactive sale editor",app.includes("Ajustar precio ↔ margen"));
+t("sale pane is bidirectional",app.includes('refreshCommercial("price")')&&app.includes('refreshCommercial("margin")'));
+t("Core marginForPrice used",app.includes("C.marginForPrice"));
+t("Core profitForPrice used",app.includes("C.profitForPrice"));
+t("Core suggestedPrice used",app.includes("C.suggestedPrice"));
+t("zero scroll body preserved",css.includes("html,body{")&&css.includes("overflow:hidden"));
+t("100dvh shell preserved",css.includes("100dvh"));
+t("editable material library preserved",app.includes("openMaterialModal")&&app.includes("data-editmat"));
+t("packaging preserved",app.includes("packagingTemplates")&&app.includes("applyPackagingTemplate"));
+t("historical snapshots preserved",app.includes("freezeCostsForSave")&&app.includes("rebaseProductCosts"));
+t("index labels v1.5",html.includes("Web v1.5"));
+console.log(`\nResultado UI v1.5: ${p} PASS · ${f} FAIL`);
+process.exitCode=f?1:0;
