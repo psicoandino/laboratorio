@@ -1,4 +1,4 @@
-PASS  schema 1.3
+Core SHA-256: ee7c2b6965490fb12ce19fd89e25d65c2b719f3080366b505a3c1dec0bf3247b\nCore byte-identical to v1.6: PASS\n\nPASS  schema 1.3
 PASS  core 1.3
 PASS  1 suelto
 PASS  2 espiral
@@ -43,34 +43,35 @@ PASS  migración conserva regla de largo personalizada
 PASS  migración agrega margen habitual
 PASS  migración agrega redondeo
 
-Resultado Core v1.3: 44 PASS · 0 FAIL
-
-PASS  Core is v1.3
-PASS  data schema is 1.3
-PASS  price card simulator exists
-PASS  margin slider exists
-PASS  price slider exists
-PASS  simulation is explicit before save
-PASS  cancel simulation exists
-PASS  suggested price exists in cards
-PASS  suggestion requires complete cost
-PASS  incomplete cost uses simulation language
-PASS  value bar can render simulation
-PASS  archive has persistent value bar
-PASS  margin setting exists
-PASS  rounding setting exists
-PASS  static 40/50/60/70 reference table removed
-PASS  obsolete price reference modal removed
-PASS  detail points to interactive sale editor
-PASS  sale pane is bidirectional
-PASS  Core marginForPrice used
-PASS  Core profitForPrice used
-PASS  Core suggestedPrice used
-PASS  zero scroll body preserved
-PASS  100dvh shell preserved
-PASS  editable material library preserved
+Resultado Core v1.3: 44 PASS · 0 FAIL\n\nPASS  index says v1.7
+PASS  viewport-fit cover preserved
+PASS  mobile web app metadata exists
+PASS  telephone detection disabled
+PASS  safe top exists
+PASS  safe bottom exists
+PASS  visualViewport adapter exists
+PASS  app height follows visual viewport
+PASS  keyboard state exists
+PASS  keyboard collapses global header
+PASS  iPhone 16e exact query exists
+PASS  phone breakpoint covers 390
+PASS  touch targets 44 exist
+PASS  mobile inputs are 16px
+PASS  range touch area enlarged
+PASS  one archive record on compact remains
+PASS  compact editor panels remain
+PASS  full phone material panel
+PASS  economic rail uses safe bottom
+PASS  mobile economic status is compact
+PASS  portrait orientation guard exists
+PASS  no width-based phone blocker returns
+PASS  reduced motion supported
+PASS  focus visible supported
+PASS  editor nav has tab semantics
+PASS  zero page scroll preserved
+PASS  price margin simulator preserved
+PASS  inline material editing preserved
 PASS  packaging preserved
 PASS  historical snapshots preserved
-PASS  index labels v1.5
 
-Resultado UI v1.5: 27 PASS · 0 FAIL
+Resultado Mobile v1.7: 30 PASS · 0 FAIL\n

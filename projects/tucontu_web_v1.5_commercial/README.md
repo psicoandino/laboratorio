@@ -1,96 +1,84 @@
-# TUCONTU Web v1.5 · capa comercial interactiva
+# TUCONTU Web v1.7 · iPhone 16e production
 
-Paquete de prueba humana con **Core v1.3**.
+Versión móvil de producción construida sobre la gramática PSICOANDINO de v1.6.
+
+## Dispositivo objetivo
+
+Diseño primario en retrato:
+
+- viewport lógico: **390 × 844**
+- DPR: **3×**
+- resolución física: **1170 × 2532**
+- pantalla: **6,1 pulgadas**
+
+El Core sigue siendo `tucontu.core/1.3`.
 
 ## Cómo probar
 
 1. Descomprime el ZIP.
 2. Abre `index.html`.
-3. No necesitas Terminal.
+3. En iPhone, pruébalo en vertical.
+4. Si se publica por HTTPS, también puede abrirse desde Safari normalmente o agregarse a la pantalla de inicio.
 
-## Qué cambia
+## Cambios móviles
 
-### En `Mis TuconTu`
+### Viewport real de Safari
 
-Cada card muestra, cuando corresponde:
+La aplicación escucha `window.visualViewport`.
 
-- costo listo para vender;
-- precio guardado, o **precio sugerido** si todavía no existe;
-- margen.
+Cuando aparece el teclado:
 
-`Ajustar precio` transforma la misma card, sin crecer ni generar scroll.
+- el lienzo se ajusta al alto realmente visible;
+- la página no empieza a hacer scroll;
+- se libera temporalmente el header global;
+- el riel económico se compacta;
+- el campo enfocado conserva el máximo espacio posible.
 
-Puedes mover:
+### Safe areas
 
-- **Precio** → margen y ganancia cambian inmediatamente.
-- **Margen** → precio y ganancia cambian inmediatamente.
+Se contemplan:
 
-La prueba no modifica la pieza hasta pulsar **Usar este precio**.
+- `safe-area-inset-top`
+- `safe-area-inset-right`
+- `safe-area-inset-bottom`
+- `safe-area-inset-left`
 
-Si el costo está incompleto, la interfaz puede simular sobre el costo conocido, pero no lo llama “precio sugerido”.
+Esto protege la interfaz al ejecutarse en Safari y en modo agregado a inicio.
 
-### Barra económica
+### Geometría táctil
 
-Mientras ajustas una card, la barra inferior refleja en vivo:
+En teléfono:
 
-- fabricación;
-- empaque;
-- listo para vender;
-- precio de prueba;
-- ganancia;
-- margen.
+- controles críticos: mínimo ~44 pt;
+- inputs/selects: 16 px para evitar zoom automático de Safari;
+- sliders comerciales: zona táctil ampliada;
+- paginación: 44 × 44.
 
-### Margen habitual
+### Cero scroll
 
-En `Ajustes` existe una preferencia general de margen habitual. Valor inicial:
+La restricción permanece:
 
-- **50%**
+- 1 pieza por página en Archivo;
+- 1 subpanel por vez en Mesa;
+- Materiales ocupa el espacio completo cuando se abre;
+- la barra económica permanece abajo;
+- colecciones se paginan.
 
-Si una pieza no tiene precio y su costo está completo, TUCONTU obtiene un precio sugerido a partir de ese margen.
+### Retrato
 
-### Redondeo comercial
+TUCONTU está compuesto para uso vertical en teléfono. Si un teléfono se gira a paisaje, se muestra un estado explícito para volver a retrato en vez de presentar una interfaz comprimida o rota.
 
-Las sugerencias pueden redondearse a:
+### Accesibilidad / producción
 
-- $1
-- $10
-- $100
-- $500
-- $1.000
+- `focus-visible`;
+- `prefers-reduced-motion`;
+- tabs con semántica ARIA;
+- sin desactivar zoom del usuario;
+- `telephone=no`;
+- metadata para uso móvil / pantalla de inicio.
 
-Valor inicial: **$100**.
+## Core
 
-El redondeo sólo afecta la sugerencia comercial; no altera los costos.
+`core.js` está preservado byte por byte respecto de v1.6.
 
-### Reducción de duplicidad
-
-Se eliminan las tablas estáticas de 40 / 50 / 60 / 70%.
-
-La misma capacidad queda expresada por el control interactivo:
-
-**Precio ↔ Margen**
-
-## Core v1.3
-
-Añade:
-
-- `marginForPrice(cost, price)`
-- `profitForPrice(cost, price)`
-- `roundCommercialPrice(price, increment)`
-- `suggestedPrice(cost, targetMargin, increment)`
-
-También agrega:
-
-- `defaultTargetMargin`
-- `priceRounding`
-
-La migración `1.2 → 1.3` preserva reglas de largo ya personalizadas.
-
-## Invariantes preservadas
-
-- cero scroll;
-- dato desconocido no rompe el flujo;
-- precio sugerido sólo con costo listo completo;
-- costo histórico protegido;
-- simulación no equivale a guardar;
-- Core rico, interfaz reducida.
+No se agregó lógica comercial ni de fabricación en esta iteración.

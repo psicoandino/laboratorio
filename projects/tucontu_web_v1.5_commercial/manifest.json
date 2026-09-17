@@ -1,23 +1,28 @@
 {
-  "artifact": "TUCONTU Web v1.5 Commercial Interactive",
+  "artifact": "TUCONTU Web v1.7 · iPhone 16e production",
   "core": "tucontu.core/1.3",
   "data_schema": "tucontu.data/1.3",
-  "new_engine_contracts": [
-    "margin_for_price",
-    "profit_for_price",
-    "commercial_rounding",
-    "suggested_price",
-    "default_target_margin",
-    "price_rounding_setting",
-    "migration_preserves_custom_length_rules"
-  ],
-  "new_ui_contracts": [
-    "piece_card_bidirectional_price_margin_simulator",
-    "simulation_requires_explicit_confirmation",
-    "persistent_value_bar_reacts_to_simulation",
-    "suggested_price_only_when_ready_cost_complete",
-    "incomplete_cost_uses_simulation_language",
-    "static_margin_reference_table_removed",
-    "zero_scroll_preserved"
+  "core_modified": false,
+  "target": {
+    "device": "iPhone 16e",
+    "orientation": "portrait",
+    "logical_viewport": "390x844",
+    "device_pixel_ratio": 3,
+    "physical_resolution": "1170x2532"
+  },
+  "contracts": [
+    "zero_page_scroll",
+    "visual_viewport_keyboard_adaptation",
+    "safe_area_support",
+    "44pt_touch_targets",
+    "16px_mobile_form_controls",
+    "single_record_archive_mobile",
+    "single_subpanel_editor_mobile",
+    "persistent_compact_economic_rail",
+    "full_width_material_workspace_mobile",
+    "portrait_orientation_state",
+    "reduced_motion",
+    "aria_tabs",
+    "core_v1.3_byte_identical"
   ]
 }
